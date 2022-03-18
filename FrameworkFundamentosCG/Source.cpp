@@ -75,17 +75,26 @@ int main()
 		glPointSize(20);
 
 		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
+
+		// 5 - a) Poligono Preenchido - GL_TRIANGLES
+		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 1, 3);
+		
+		// 5 - b) CONTORNO - GL_LINE_LOOP
+		glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_LINE_LOOP, 0, 3);
+		glDrawArrays(GL_LINE_LOOP, 1, 3);
 
-		// Chamada de desenho - drawcall
-		// CONTORNO - GL_LINE_LOOP
-		// PONTOS - GL_POINTS
-		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-		glDrawArrays(GL_POINTS, 0, 3);
+		// 5 - c) PONTOS - GL_POINTS
+		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_POINTS, 0, 4);
 		glBindVertexArray(0);
+
+		// 5 - d) DESENHA TODOS JUNTOS
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
@@ -119,9 +128,9 @@ int setupGeometry()
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 	GLfloat vertices[] = {
 		-0.5, -0.5, 0.0,
+		-0.5,  0.5, 0.0,
 		 0.5, -0.5, 0.0,
-		 0.0, 0.5, 0.0,
-		 //outro triangulo vai aqui
+		 0.5,  0.5, 0.0,
 	};
 
 	GLuint VBO, VAO;
