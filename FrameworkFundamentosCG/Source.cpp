@@ -6,7 +6,6 @@
 #include "Shader.h"
 #include "Circle.h"
 #include "Star.h"
-#include <ranges>
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -81,9 +80,9 @@ int main()
 		// Poligono Preenchido - GL_TRIANGLES
 
 		// 6 - Fazer o círculo
-		//glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-		//glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
+		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
 
 		// 6 - a) Fazer o octágono
 		//glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
@@ -149,6 +148,7 @@ int setupGeometry()
 	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 
+	// Inserir a geometria desejada no vector de vertices
 	const auto circle = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
 	const auto octagon = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 8);
 	const auto pentagon = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 5);
@@ -158,18 +158,13 @@ int setupGeometry()
 	pac_man.erase(pac_man.begin() + pac_man.size() - 6, pac_man.end());
 	const auto pizzaSlice = Pizza::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
 
-	std::vector<GLfloat> vertices = { pizzaSlice };
-
-	for (int i = 3; i < 6; i++)
-	{
-		vertices.push_back(vertices[i]);
-	}
+	std::vector<GLfloat> vertices = { circle };
 
 	GLuint VBO, VAO;
 
 	//Geração do identificador do VBO
 	glGenBuffers(1, &VBO);
-	//Faz a conexão (vincula) do buffer como um buffer de array
+	//Faz a conexão (vinculação) do buffer como um buffer de array
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	//Envia os dados do array de floats para o buffer da OpenGl
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices.front(), GL_STATIC_DRAW);

@@ -12,7 +12,7 @@ public:
 		vertices.push_back(center.second / height);
 		vertices.push_back(0.0f);
 
-		vertices.reserve(nFlares * 2 * 3);
+		vertices.reserve(float(nFlares + 1) * 2 * 3);
 		const float angle = 2.0f * PI / float(nFlares * 2);
 		for (int i = 0; i < nFlares * 2; i++)
 		{
@@ -23,6 +23,12 @@ public:
 			vertices.push_back(y);
 			vertices.push_back(0.0f);
 		}
+
+		for (int i = 3; i < 6; i++)
+		{
+			vertices.push_back(vertices[i]);
+		}
+
 		return vertices;
 	}
 };
