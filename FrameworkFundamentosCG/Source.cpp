@@ -3,7 +3,9 @@
 #include <assert.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <ostream>
 #include "Shader.h"
+#include "Spiral.h"
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -21,7 +23,7 @@ int main()
 	glfwInit();
 
 	// Criação da janela GLFW
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! - Arthur Prediger", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Lista 1 - Exercicio 7 - Arthur Prediger", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Fazendo o registro da função de callback para a janela GLFW
@@ -71,21 +73,16 @@ int main()
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		glPointSize(10);
 		glLineWidth(10);
-		glPointSize(20);
-
+ 
 		// Chamada de desenho - drawcall
 		// Poligono Preenchido - GL_TRIANGLES
 		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		// Chamada de desenho - drawcall
-		// CONTORNO - GL_LINE_LOOP
-		// PONTOS - GL_POINTS
-		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-		glDrawArrays(GL_POINTS, 0, 3);
-		glBindVertexArray(0);
+		glDrawArrays(GL_LINE_STRIP, 0, 50);
+		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
+		glDrawArrays(GL_POINTS, 0, 50);
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
@@ -117,12 +114,13 @@ int setupGeometry()
 	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
 	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
 	// Pode ser arazenado em um VBO único ou em VBOs separados
-	GLfloat vertices[] = {
-		-0.5, -0.5, 0.0,
-		 0.5, -0.5, 0.0,
-		 0.0, 0.5, 0.0,
-		 //outro triangulo vai aqui
-	};
+	
+	std::vector<GLfloat> vertices = { Spiral::Make(WIDTH, HEIGHT) };
+
+	for (int i = 0; i < vertices.size(); i += 3)
+	{
+		std::cout << vertices[i] << std::endl;
+	}
 
 	GLuint VBO, VAO;
 
@@ -131,7 +129,7 @@ int setupGeometry()
 	//Faz a conexão (vincula) do buffer como um buffer de array
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	//Envia os dados do array de floats para o buffer da OpenGl
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices, GL_STATIC_DRAW);
 
 	//Geração do identificador do VAO (Vertex Array Object)
 	glGenVertexArrays(1, &VAO);
