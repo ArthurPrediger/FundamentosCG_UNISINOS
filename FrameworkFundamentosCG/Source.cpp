@@ -73,16 +73,13 @@ int main()
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glPointSize(10);
-		glLineWidth(10);
+		glLineWidth(3);
  
 		// Chamada de desenho - drawcall
 		// Poligono Preenchido - GL_TRIANGLES
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glUniform4f(colorLoc, 1.0f, 0.27058823529f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_LINE_STRIP, 0, 50);
-		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
-		glDrawArrays(GL_POINTS, 0, 50);
+		glDrawArrays(GL_LINE_STRIP, 0, 501);
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
@@ -117,11 +114,6 @@ int setupGeometry()
 	
 	std::vector<GLfloat> vertices = { Spiral::Make(WIDTH, HEIGHT) };
 
-	for (int i = 0; i < vertices.size(); i += 3)
-	{
-		std::cout << vertices[i] << std::endl;
-	}
-
 	GLuint VBO, VAO;
 
 	//Geração do identificador do VBO
@@ -129,7 +121,7 @@ int setupGeometry()
 	//Faz a conexão (vincula) do buffer como um buffer de array
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	//Envia os dados do array de floats para o buffer da OpenGl
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices.front(), GL_STATIC_DRAW);
 
 	//Geração do identificador do VAO (Vertex Array Object)
 	glGenVertexArrays(1, &VAO);
