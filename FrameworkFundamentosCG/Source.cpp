@@ -77,7 +77,6 @@ int main()
 		glPointSize(20);
 
 		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
 
 		// 6 - Fazer o círculo
 		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
@@ -94,12 +93,12 @@ int main()
 		//glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLE_FAN, 0, 7);
 
-		// 6 - Fazer o pac-man
+		// 6 - c) Fazer o pac-man
 		//glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
 		//glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLE_FAN, 0, 25);
 
-		// 6 - Fazer a fatia de pizza
+		// 6 - d) Fazer a fatia de pizza
 		//glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
 		//glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLE_FAN, 0, 8);
@@ -109,13 +108,7 @@ int main()
 		//glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLE_FAN, 0, 12);
 
-		// Chamada de desenho - drawcall
-		// CONTORNO - GL_LINE_LOOP
-		// PONTOS - GL_POINTS
-		//glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-		//glBindVertexArray(VAO);
-		//glDrawArrays(GL_POINTS, 0, 11);
-		//glBindVertexArray(0);
+		glBindVertexArray(0);
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
