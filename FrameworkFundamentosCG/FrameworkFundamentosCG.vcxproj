@@ -162,7 +162,6 @@
     <ClInclude Include="Circle.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="Star.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,12 +6,13 @@
 #include "Shader.h"
 #include "Circle.h"
 #include "Star.h"
+#include <ranges>
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // Protótipos das funções
-int setupGeometry();
+int setupGeometry(const std::vector<float>& v);
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -50,9 +51,7 @@ int main()
 	// Compilando e buildando o programa de shader
 	Shader shader("../Shaders\\shader1.vs", "../Shaders\\shader1.fs");
 
-	// Gerando um buffer simples, com a geometria de um triângulo
-	GLuint VAO = setupGeometry();
-
+	GLuint VAO;
 
 	// Enviando a cor desejada (vec4) para o fragment shader
 	// Utilizamos a variáveis do tipo uniform em GLSL para armazenar esse tipo de info
@@ -73,40 +72,39 @@ int main()
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glLineWidth(10);
-		glPointSize(20);
+		glLineWidth(3);
 
 		// Chamada de desenho - drawcall
 
-		// 6 - Fazer o círculo
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
+		std::vector<float> triangle = {
+			0.0f,    0.6f,  0.0f,
+			-0.6f,  -0.5f,  0.0f,
+			0.6f,   -0.3f,  0.0f };
+		VAO = setupGeometry(triangle);
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
 		glBindVertexArray(VAO);
+		glDrawArrays(GL_LINE_LOOP, 0, 3);
+
+		VAO = setupGeometry(Circle::Make(5.0f, { 0.0f, 0.6f * HEIGHT / 2 }, WIDTH, HEIGHT));
+		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_LINE_LOOP, 1, 21);
+		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
 
-		// 6 - a) Fazer o octágono
-		//glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-		//glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLE_FAN, 0, 10);
+		VAO = setupGeometry(Circle::Make(5.0f, { -0.6f * WIDTH / 2, -0.5f * HEIGHT / 2 }, WIDTH, HEIGHT));
+		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_LINE_LOOP, 1, 21);
+		glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
 
-		// 6 - b) Fazer o pentágono
-		//glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-		//glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLE_FAN, 0, 7);
-
-		// 6 - c) Fazer o pac-man
-		//glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
-		//glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLE_FAN, 0, 25);
-
-		// 6 - d) Fazer a fatia de pizza
-		//glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
-		//glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLE_FAN, 0, 8);
-
-		// 6 - e) Fazer a estrela
-		//glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-		//glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLE_FAN, 0, 12);
+		VAO = setupGeometry(Circle::Make(5.0f, { 0.6f * WIDTH / 2, -0.3f * HEIGHT / 2 }, WIDTH, HEIGHT));
+		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_LINE_LOOP, 1, 21);
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
 
 		glBindVertexArray(0);
 
@@ -134,7 +132,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 // Apenas atributo coordenada nos vértices
 // 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
 // A função retorna o identificador do VAO
-int setupGeometry()
+int setupGeometry(const std::vector<float>& v)
 {
 	// Aqui setamos as coordenadas x, y e z do triângulo e as armazenamos de forma
 	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
@@ -142,16 +140,8 @@ int setupGeometry()
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 
 	// Inserir a geometria desejada no vector de vertices
-	const auto circle = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
-	const auto octagon = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 8);
-	const auto pentagon = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 5);
-	const auto star = Star::Make(300.0f, 150.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
-	auto pac_man = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 28);
-	pac_man.erase(pac_man.begin() + 3, pac_man.begin() + 9);
-	pac_man.erase(pac_man.begin() + pac_man.size() - 6, pac_man.end());
-	const auto pizzaSlice = Pizza::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
 
-	std::vector<GLfloat> vertices = { circle };
+	std::vector<GLfloat> vertices = { v };
 
 	GLuint VBO, VAO;
 
