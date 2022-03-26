@@ -142,11 +142,11 @@ int setupGeometry()
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 
 	// Inserir a geometria desejada no vector de vertices
-	const auto circle = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
-	const auto octagon = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 8);
-	const auto pentagon = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 5);
-	const auto star = Star::Make(300.0f, 150.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
-	auto pac_man = Circle::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 28);
+	const auto circle = Circle::Make(150.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
+	const auto octagon = Circle::Make(150.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 8);
+	const auto pentagon = Circle::Make(150.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 5);
+	const auto star = Star::Make(150.0f, 75.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
+	auto pac_man = Circle::Make(150.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 28);
 	pac_man.erase(pac_man.begin() + 3, pac_man.begin() + 9);
 	pac_man.erase(pac_man.begin() + pac_man.size() - 6, pac_man.end());
 	const auto pizzaSlice = Pizza::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
