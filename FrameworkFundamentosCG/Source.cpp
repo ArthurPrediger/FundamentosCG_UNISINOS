@@ -6,7 +6,6 @@
 #include "Shader.h"
 #include "Circle.h"
 #include "Star.h"
-#include <ranges>
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -72,39 +71,70 @@ int main()
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glLineWidth(3);
-
 		// Chamada de desenho - drawcall
 
-		std::vector<float> triangle = {
-			0.0f,    0.6f,  0.0f,
-			-0.6f,  -0.5f,  0.0f,
-			0.6f,   -0.3f,  0.0f };
-		VAO = setupGeometry(triangle);
+		glLineWidth(10);
+		std::vector<float> ground = {
+			-1.0f,   -0.982f,  0.0f,
+			 1.0f,   -0.982f,  0.0f };
+		VAO = setupGeometry(std::move(ground));
 		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_LINE_LOOP, 0, 3);
+		glDrawArrays(GL_LINE_STRIP, 0, 2);
 
-		VAO = setupGeometry(Circle::Make(5.0f, { 0.0f, 0.6f * HEIGHT / 2 }, WIDTH, HEIGHT));
-		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		VAO = setupGeometry(Circle::Make(100.0f, { 0.0f, -0.65f * HEIGHT / 2 }, WIDTH, HEIGHT));
+		glLineWidth(5);
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_LINE_LOOP, 1, 21);
-		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
+		glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
-
-		VAO = setupGeometry(Circle::Make(5.0f, { -0.6f * WIDTH / 2, -0.5f * HEIGHT / 2 }, WIDTH, HEIGHT));
-		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		
+		VAO = setupGeometry(Circle::Make(75.0f, { 0.0f, -0.2f * HEIGHT / 2 }, WIDTH, HEIGHT));
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_LINE_LOOP, 1, 21);
-		glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+		glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
-
-		VAO = setupGeometry(Circle::Make(5.0f, { 0.6f * WIDTH / 2, -0.3f * HEIGHT / 2 }, WIDTH, HEIGHT));
-		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		
+		VAO = setupGeometry(Circle::Make(50.0f, { 0.0f, 0.15f * HEIGHT / 2 }, WIDTH, HEIGHT));
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_LINE_LOOP, 1, 21);
-		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f);
+		glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
+
+		VAO = setupGeometry(Circle::Make(8.0f, { -0.04f * WIDTH / 2, 0.2f * HEIGHT / 2 }, WIDTH, HEIGHT));
+		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
+
+		VAO = setupGeometry(Circle::Make(8.0f, { 0.04f * WIDTH / 2, 0.2f * HEIGHT / 2 }, WIDTH, HEIGHT));
+		glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
+
+		VAO = setupGeometry(Circle::Make(10.0f, { 0.0f, 0.12f * HEIGHT / 2 }, WIDTH, HEIGHT));
+		glUniform4f(colorLoc, 1.0f, 0.55f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
+
+		glLineWidth(10);
+		std::vector<float> rightArm = {
+			  0.15f,   -0.15f,  0.0f,
+			  0.35f,    0.0f,  0.0f };
+		VAO = setupGeometry(std::move(rightArm));
+		glUniform4f(colorLoc, 0.64705882352f, 0.16470588235f, 0.16470588235f, 1.0f); //enviando cor para variável uniform inputColor
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_LINE_STRIP, 0, 2);
+
+		std::vector<float> leftArm = {
+			  -0.15f,   -0.15f,  0.0f,
+			  -0.35f,    0.0f,   0.0f };
+		VAO = setupGeometry(std::move(leftArm));
+		glUniform4f(colorLoc, 0.64705882352f, 0.16470588235f, 0.16470588235f, 1.0f); //enviando cor para variável uniform inputColor
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_LINE_STRIP, 0, 2);
 
 		glBindVertexArray(0);
 
