@@ -3,9 +3,9 @@
 #include <assert.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <ostream>
 #include "Shader.h"
-#include "Spiral.h"
+#include "Circle.h"
+#include "Star.h"
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -23,7 +23,7 @@ int main()
 	glfwInit();
 
 	// Criação da janela GLFW
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "OpenGL Framework", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! - Arthur Prediger", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Fazendo o registro da função de callback para a janela GLFW
@@ -73,13 +73,42 @@ int main()
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glLineWidth(3);
- 
+		glLineWidth(10);
+		glPointSize(20);
+
 		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
-		glUniform4f(colorLoc, 1.0f, 0.27058823529f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+
+		// 6 - Fazer o círculo
+		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_LINE_STRIP, 0, 501);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
+
+		// 6 - a) Fazer o octágono
+		//glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
+		//glBindVertexArray(VAO);
+		//glDrawArrays(GL_TRIANGLE_FAN, 0, 10);
+
+		// 6 - b) Fazer o pentágono
+		//glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
+		//glBindVertexArray(VAO);
+		//glDrawArrays(GL_TRIANGLE_FAN, 0, 7);
+
+		// 6 - c) Fazer o pac-man
+		//glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		//glBindVertexArray(VAO);
+		//glDrawArrays(GL_TRIANGLE_FAN, 0, 25);
+
+		// 6 - d) Fazer a fatia de pizza
+		//glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+		//glBindVertexArray(VAO);
+		//glDrawArrays(GL_TRIANGLE_FAN, 0, 8);
+
+		// 6 - e) Fazer a estrela
+		//glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
+		//glBindVertexArray(VAO);
+		//glDrawArrays(GL_TRIANGLE_FAN, 0, 12);
+
+		glBindVertexArray(0);
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
@@ -111,14 +140,24 @@ int setupGeometry()
 	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
 	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
 	// Pode ser arazenado em um VBO único ou em VBOs separados
-	
-	std::vector<GLfloat> vertices = { Spiral::Make(WIDTH, HEIGHT) };
+
+	// Inserir a geometria desejada no vector de vertices
+	const auto circle = Circle::Make(150.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
+	const auto octagon = Circle::Make(150.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 8);
+	const auto pentagon = Circle::Make(150.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 5);
+	const auto star = Star::Make(150.0f, 75.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
+	auto pac_man = Circle::Make(150.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT, 28);
+	pac_man.erase(pac_man.begin() + 3, pac_man.begin() + 9);
+	pac_man.erase(pac_man.begin() + pac_man.size() - 6, pac_man.end());
+	const auto pizzaSlice = Pizza::Make(300.0f, { 0.0f, 0.0f }, WIDTH, HEIGHT);
+
+	std::vector<GLfloat> vertices = { circle };
 
 	GLuint VBO, VAO;
 
 	//Geração do identificador do VBO
 	glGenBuffers(1, &VBO);
-	//Faz a conexão (vincula) do buffer como um buffer de array
+	//Faz a conexão (vinculação) do buffer como um buffer de array
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	//Envia os dados do array de floats para o buffer da OpenGl
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices.front(), GL_STATIC_DRAW);
