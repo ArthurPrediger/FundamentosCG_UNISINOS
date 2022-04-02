@@ -49,7 +49,7 @@ int main()
 
 
 	// Compilando e buildando o programa de shader
-	Shader shader("../Shaders\\shader1.vs", "../Shaders\\shader1.fs");
+	Shader shader("../Shaders\\ortho_vs.txt", "../Shaders\\ortho_fs.txt");
 
 	// Gerando um buffer simples, com a geometria de um triângulo
 	GLuint VAO = setupGeometry();
@@ -62,7 +62,11 @@ int main()
 	assert(colorLoc > -1);
 
 	glUseProgram(shader.ID);
+	glm::mat4 projection = glm::mat4(1);
+	projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, -1.0f, 1.0f);
 
+	GLint projLoc = glGetUniformLocation(shader.ID, "projection");
+	glUniformMatrix4fv(projLoc, 1, false, glm::value_ptr(projection));
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -75,7 +79,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glLineWidth(10);
-		glPointSize(20);
+		glPointSize(5);
 
 		// Chamada de desenho - drawcall
 		// Poligono Preenchido - GL_TRIANGLES
@@ -86,7 +90,7 @@ int main()
 		// Chamada de desenho - drawcall
 		// CONTORNO - GL_LINE_LOOP
 		// PONTOS - GL_POINTS
-		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
+		glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
 		glDrawArrays(GL_POINTS, 0, 3);
 		glBindVertexArray(0);
 
