@@ -65,6 +65,11 @@ int main()
 	glm::mat4 projection = glm::mat4(1);
 	projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, -1.0f, 1.0f);
 
+	// Utilizando essa configuração de câmera os vértices dos objetos podem ser descritos 
+	// em coordenadas não normalizadas, porém a janela não está centrada na origem (0,0),
+	// de forma que as geometrias não desenhadas por completo se utilizam vértices com
+	// coordendas negativas e utilizando a origem como centro.
+
 	GLint projLoc = glGetUniformLocation(shader.ID, "projection");
 	glUniformMatrix4fv(projLoc, 1, false, glm::value_ptr(projection));
 
@@ -126,9 +131,9 @@ int setupGeometry()
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 	
 	GLfloat vertices[] = {
-		-0.5, -0.5, 0.0,
-		 0.5, -0.5, 0.0,
-		 0.0, 0.5, 0.0,
+		-400.0, -300.0,  0.0,
+		 400.0, -300.0,  0.0,
+		   0.0,  300.0,  0.0,
 	};
 
 	GLuint VBO, VAO;
