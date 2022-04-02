@@ -63,7 +63,7 @@ int main()
 
 	glUseProgram(shader.ID);
 	glm::mat4 projection = glm::mat4(1);
-	projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, -1.0f, 1.0f);
 
 	GLint projLoc = glGetUniformLocation(shader.ID, "projection");
 	glUniformMatrix4fv(projLoc, 1, false, glm::value_ptr(projection));
@@ -124,11 +124,11 @@ int setupGeometry()
 	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
 	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
 	// Pode ser arazenado em um VBO único ou em VBOs separados
+	
 	GLfloat vertices[] = {
 		-0.5, -0.5, 0.0,
 		 0.5, -0.5, 0.0,
 		 0.0, 0.5, 0.0,
-		 //outro triangulo vai aqui
 	};
 
 	GLuint VBO, VAO;
