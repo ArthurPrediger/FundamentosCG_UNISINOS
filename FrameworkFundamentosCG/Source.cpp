@@ -77,11 +77,14 @@ int main()
 		glPointSize(20);
 
 		// Chamada de desenho - drawcall
+		// Para executar cada um dos itens da atividade basta descomentar a parte do código 
+		// relativa à questão e mudar a geometria no geometry shader (já existe um vector 
+		// criado para cada uma das questões.
 
 		// 6 - Fazer o círculo
 		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 22);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 52);
 
 		// 6 - a) Fazer o octágono
 		//glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor

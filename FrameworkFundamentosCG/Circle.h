@@ -6,7 +6,7 @@ static constexpr float PI = 3.14159265359;
 class Circle
 {
 public:
-	static std::vector<float> Make(float radius, std::pair<float, float> center, int width, int height, int nVertices = 20)
+	static std::vector<float> Make(float radius, std::pair<float, float> center, int width, int height, int nVertices = 50)
 	{
 		const float halfWidth = width / 2.0f;
 		const float halfHeight = height / 2.0f;
