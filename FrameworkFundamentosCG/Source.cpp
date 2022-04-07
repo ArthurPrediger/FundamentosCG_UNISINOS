@@ -62,13 +62,9 @@ int main()
 	assert(colorLoc > -1);
 
 	glUseProgram(shader.ID);
-	glm::mat4 projection = glm::mat4(1);
-	projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, -1.0f, 1.0f);
 
-	// Utilizando essa configuração de câmera os vértices dos objetos podem ser descritos 
-	// em coordenadas não normalizadas, porém a janela não está centrada na origem (0,0),
-	// de forma que as geometrias não desenhadas por completo se utilizam vértices com
-	// coordendas negativas e utilizando a origem como centro.
+	glm::mat4 projection = glm::mat4(1);
+	projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 
 	GLint projLoc = glGetUniformLocation(shader.ID, "projection");
 	glUniformMatrix4fv(projLoc, 1, false, glm::value_ptr(projection));
@@ -79,11 +75,13 @@ int main()
 		// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 		glfwPollEvents();
 
+		glViewport(WIDTH / 2, HEIGHT / 2, WIDTH / 2, HEIGHT / 2);
+
 		// Limpa o buffer de cor
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glLineWidth(10);
+		glLineWidth(4);
 		glPointSize(5);
 
 		// Chamada de desenho - drawcall
@@ -96,7 +94,7 @@ int main()
 		// CONTORNO - GL_LINE_LOOP
 		// PONTOS - GL_POINTS
 		glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
-		glDrawArrays(GL_POINTS, 0, 3);
+		glDrawArrays(GL_LINE_LOOP, 0, 3);
 		glBindVertexArray(0);
 
 		// Troca os buffers da tela
@@ -131,9 +129,9 @@ int setupGeometry()
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 	
 	GLfloat vertices[] = {
-		-400.0, -300.0,  0.0,
-		 400.0, -300.0,  0.0,
-		   0.0,  300.0,  0.0,
+		-0.5, -0.5,  0.0,
+		 0.5, -0.5,  0.0,
+		 0.0,  0.5,  0.0,
 	};
 
 	GLuint VBO, VAO;
