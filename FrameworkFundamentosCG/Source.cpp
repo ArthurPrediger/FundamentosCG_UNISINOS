@@ -75,27 +75,34 @@ int main()
 		// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 		glfwPollEvents();
 
-		glViewport(WIDTH / 2, HEIGHT / 2, WIDTH / 2, HEIGHT / 2);
-
 		// Limpa o buffer de cor
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glLineWidth(4);
-		glPointSize(5);
+		int posX = WIDTH / 2;
+		int posY = HEIGHT / 2;
 
-		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		float j = 0.5f;
+		for (int i = 0; i < 4; i++, j *= i)
+		{
+			glViewport(i % 2 * posX, (int)j % 2 * posY, posX, posY);
+			//glViewport(i * posX, i * posY, posX, posY);
+			glLineWidth(4);
+			glPointSize(5);
 
-		// Chamada de desenho - drawcall
-		// CONTORNO - GL_LINE_LOOP
-		// PONTOS - GL_POINTS
-		glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
-		glDrawArrays(GL_LINE_LOOP, 0, 3);
-		glBindVertexArray(0);
+			// Chamada de desenho - drawcall
+			// Poligono Preenchido - GL_TRIANGLES
+			glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
+			glBindVertexArray(VAO);
+			glDrawArrays(GL_TRIANGLES, 0, 3);
+
+			// Chamada de desenho - drawcall
+			// CONTORNO - GL_LINE_LOOP
+			// PONTOS - GL_POINTS
+			glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
+			glDrawArrays(GL_LINE_LOOP, 0, 3);
+			glBindVertexArray(0);
+		}
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
