@@ -7,6 +7,7 @@
 #include <glm/glm.hpp> 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Star.h"
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -47,13 +48,10 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-
 	// Compilando e buildando o programa de shader
 	Shader shader("../Shaders\\ortho_vs.txt", "../Shaders\\ortho_fs.txt");
 
-	// Gerando um buffer simples, com a geometria de um triângulo
 	GLuint VAO = setupGeometry();
-
 
 	// Enviando a cor desejada (vec4) para o fragment shader
 	// Utilizamos a variáveis do tipo uniform em GLSL para armazenar esse tipo de info
@@ -64,10 +62,26 @@ int main()
 	glUseProgram(shader.ID);
 
 	glm::mat4 projection = glm::mat4(1);
-	projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+	float ratio;
+	float xMin = -1.0, xMax = 1.0, yMin = -1.0, yMax = 1.0;
+	float zNear = -1.0, zFar = 1.0;
+	if (width >= height)
+	{
+		ratio = width / (float)height;
+		projection = glm::ortho(xMin * ratio, xMax * ratio, yMin,
+			yMax, zNear, zFar);
+	}
+	else
+	{
+		ratio = height / (float)width;
+		projection = glm::ortho(xMin, xMax, yMin * ratio,
+			yMax * ratio, zNear, zFar);
+	}
 
 	GLint projLoc = glGetUniformLocation(shader.ID, "projection");
 	glUniformMatrix4fv(projLoc, 1, false, glm::value_ptr(projection));
+
+	glm::mat4 model = glm::mat4(1);
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -75,32 +89,32 @@ int main()
 		// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 		glfwPollEvents();
 
+		//glViewport(0, 0, WIDTH, HEIGHT);
+
 		// Limpa o buffer de cor
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		int posX = WIDTH / 2;
-		int posY = HEIGHT / 2;
+		glLineWidth(4);
+		glPointSize(5);
 
-		float j = 0.5f;
-		for (int i = 0; i < 4; i++, j *= i)
+		for (int i = 0; i < 3; i++)
 		{
-			glViewport(i % 2 * posX, (int)j % 2 * posY, posX, posY);
-			//glViewport(i * posX, i * posY, posX, posY);
-			glLineWidth(4);
-			glPointSize(5);
+			model = glm::mat4(1);
+			model = glm::translate(model, glm::vec3((float(i) - 1.0f) * 0.8f, (float(i) - 1.0f) * 0.5f, 0.0f));
+			model = glm::rotate(model, float(i * PI / 4), {0.0f, 0.0f, 1.0f});
+			model = glm::scale(model, { (float(i) * 0.5f + 1.0f) * ratio / (float(width) / 2.0f), 
+				(float(i) * 0.5f + 1.0f) / (float(height) / 2.0f), 1.0f });
 
-			// Chamada de desenho - drawcall
-			// Poligono Preenchido - GL_TRIANGLES
+			GLint modelLoc = glGetUniformLocation(shader.ID, "model");
+			glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
+
 			glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
 			glBindVertexArray(VAO);
-			glDrawArrays(GL_TRIANGLES, 0, 3);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, 14);
 
-			// Chamada de desenho - drawcall
-			// CONTORNO - GL_LINE_LOOP
-			// PONTOS - GL_POINTS
 			glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
-			glDrawArrays(GL_LINE_LOOP, 0, 3);
+			glDrawArrays(GL_LINE_LOOP, 1, 13);
 			glBindVertexArray(0);
 		}
 
@@ -134,12 +148,8 @@ int setupGeometry()
 	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
 	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
 	// Pode ser arazenado em um VBO único ou em VBOs separados
-	
-	GLfloat vertices[] = {
-		-0.5, -0.5,  0.0,
-		 0.5, -0.5,  0.0,
-		 0.0,  0.5,  0.0,
-	};
+
+	std::vector<GLfloat> vertices = { Star::Make(60.0f, 30.0f, { 0.0f, 0.0f }, 6) };
 
 	GLuint VBO, VAO;
 
@@ -148,7 +158,7 @@ int setupGeometry()
 	//Faz a conexão (vincula) do buffer como um buffer de array
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	//Envia os dados do array de floats para o buffer da OpenGl
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices.front(), GL_STATIC_DRAW);
 
 	//Geração do identificador do VAO (Vertex Array Object)
 	glGenVertexArrays(1, &VAO);
