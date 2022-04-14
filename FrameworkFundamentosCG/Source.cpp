@@ -7,13 +7,14 @@
 #include <glm/glm.hpp> 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "Star.h"
+#include "Square.h"
+#include <random>
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // Protótipos das funções
-int setupGeometry();
+int setupGeometry(const std::vector<float>& geometry);
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -51,7 +52,9 @@ int main()
 	// Compilando e buildando o programa de shader
 	Shader shader("../Shaders\\ortho_vs.txt", "../Shaders\\ortho_fs.txt");
 
-	GLuint VAO = setupGeometry();
+	float squareSideLength = 40.0f;
+	std::vector<float> square = Square::Make(squareSideLength);
+	GLuint VAO = setupGeometry(square);;
 
 	// Enviando a cor desejada (vec4) para o fragment shader
 	// Utilizamos a variáveis do tipo uniform em GLSL para armazenar esse tipo de info
@@ -83,13 +86,35 @@ int main()
 
 	glm::mat4 model = glm::mat4(1);
 
+	enum Colors { Blue, Orange, Green, Yellow, Magenta, Purple };
+
+	std::random_device rd;
+	std::mt19937 rng(rd());
+	std::uniform_int_distribution<int> colorDist(0, 5);
+
+	const int nSquaresGridSides = 6;
+	const int nSquares = nSquaresGridSides * nSquaresGridSides;
+
+	int colorsArr[nSquares] = {};
+	int repeat;
+	for (int i = 0; i < nSquares; i++)
+	{
+		colorsArr[i] = colorDist(rng);
+		repeat = colorsArr[i];
+		if ((i > 0 && repeat == colorsArr[i - 1]) || 
+			(i >= nSquaresGridSides && repeat == colorsArr[i - nSquaresGridSides]))
+		{
+			i--;
+		}
+	}
+
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
 	{
 		// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 		glfwPollEvents();
 
-		//glViewport(0, 0, WIDTH, HEIGHT);
+		glViewport(0, 0, WIDTH, HEIGHT);
 
 		// Limpa o buffer de cor
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
@@ -98,24 +123,47 @@ int main()
 		glLineWidth(4);
 		glPointSize(5);
 
-		for (int i = 0; i < 3; i++)
+		for (int y = 0; y < nSquaresGridSides; y++)
 		{
-			model = glm::mat4(1);
-			model = glm::translate(model, glm::vec3((float(i) - 1.0f) * 0.8f, (float(i) - 1.0f) * 0.5f, 0.0f));
-			model = glm::rotate(model, float(i * PI / 4), {0.0f, 0.0f, 1.0f});
-			model = glm::scale(model, { (float(i) * 0.5f + 1.0f) * ratio / (float(width) / 2.0f), 
-				(float(i) * 0.5f + 1.0f) / (float(height) / 2.0f), 1.0f });
+			for (int x = 0; x < nSquaresGridSides; x++)
+			{
+				model = glm::mat4(1);
+				model = glm::translate(model, {float(x - 3) * squareSideLength * ratio / (float(width) / 2.0f), 
+					float(y - 3) * squareSideLength / (float(height) / 2.0f), 0.0f });
+				model = glm::scale(model, { 1.0f * ratio / (float(width) / 2.0f), 1.0f / (float(height) / 2.0f), 1.0f });
 
-			GLint modelLoc = glGetUniformLocation(shader.ID, "model");
-			glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
+				GLint modelLoc = glGetUniformLocation(shader.ID, "model");
+				glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
 
-			glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-			glBindVertexArray(VAO);
-			glDrawArrays(GL_TRIANGLE_FAN, 0, 14);
-
-			glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f); //enviando cor para variável uniform inputColor
-			glDrawArrays(GL_LINE_LOOP, 1, 13);
-			glBindVertexArray(0);
+				switch (colorsArr[y * nSquaresGridSides + x])
+				{
+				case Colors::Blue:
+					glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
+					break;
+				case Colors::Orange:
+					glUniform4f(colorLoc, 1.0f, 153.0f / 255.0f, 51.0f / 255.0f, 1.0f);
+					break;
+				case Colors::Green:
+					glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+					break;
+				case Colors::Yellow:
+					glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f);
+					break;
+				case Colors::Magenta:
+					glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
+					break;
+				case Colors::Purple:
+					glUniform4f(colorLoc, 102.0f / 255.0f, 0.0f, 204.0f / 255.0f, 1.0f);
+					break;
+				default:
+					glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
+					break;
+				}
+				
+				glBindVertexArray(VAO);
+				glDrawArrays(GL_TRIANGLES, 0, 3);
+				glDrawArrays(GL_TRIANGLES, 1, 4);
+			}
 		}
 
 		// Troca os buffers da tela
@@ -142,14 +190,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 // Apenas atributo coordenada nos vértices
 // 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
 // A função retorna o identificador do VAO
-int setupGeometry()
+int setupGeometry(const std::vector<float>& geometry)
 {
 	// Aqui setamos as coordenadas x, y e z do triângulo e as armazenamos de forma
 	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
 	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 
-	std::vector<GLfloat> vertices = { Star::Make(60.0f, 30.0f, { 0.0f, 0.0f }, 6) };
+	std::vector<GLfloat> vertices = { geometry };
 
 	GLuint VBO, VAO;
 

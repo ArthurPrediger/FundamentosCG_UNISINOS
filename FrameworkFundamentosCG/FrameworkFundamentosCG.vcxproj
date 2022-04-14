@@ -159,7 +159,7 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Star.h" />
+    <ClInclude Include="Square.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
