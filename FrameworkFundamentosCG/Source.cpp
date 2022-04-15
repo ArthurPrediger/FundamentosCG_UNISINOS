@@ -8,13 +8,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Square.h"
-#include <random>
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // Protótipos das funções
 int setupGeometry(const std::vector<float>& geometry);
+
+glm::vec2 moveGeometry(GLFWwindow* window, float dt);
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -54,7 +55,7 @@ int main()
 
 	float squareSideLength = 40.0f;
 	std::vector<float> square = Square::Make(squareSideLength);
-	GLuint VAO = setupGeometry(square);;
+	GLuint VAO = setupGeometry(square);
 
 	// Enviando a cor desejada (vec4) para o fragment shader
 	// Utilizamos a variáveis do tipo uniform em GLSL para armazenar esse tipo de info
@@ -85,28 +86,8 @@ int main()
 	glUniformMatrix4fv(projLoc, 1, false, glm::value_ptr(projection));
 
 	glm::mat4 model = glm::mat4(1);
-
-	enum Colors { Blue, Orange, Green, Yellow, Magenta, Purple };
-
-	std::random_device rd;
-	std::mt19937 rng(rd());
-	std::uniform_int_distribution<int> colorDist(0, 5);
-
-	const int nSquaresGridSides = 6;
-	const int nSquares = nSquaresGridSides * nSquaresGridSides;
-
-	int colorsArr[nSquares] = {};
-	int repeat;
-	for (int i = 0; i < nSquares; i++)
-	{
-		colorsArr[i] = colorDist(rng);
-		repeat = colorsArr[i];
-		if ((i > 0 && repeat == colorsArr[i - 1]) || 
-			(i >= nSquaresGridSides && repeat == colorsArr[i - nSquaresGridSides]))
-		{
-			i--;
-		}
-	}
+	float lastFrame = 0.0f;
+	glm::vec2 pos = { 0.0f, 0.0f };
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -123,48 +104,22 @@ int main()
 		glLineWidth(4);
 		glPointSize(5);
 
-		for (int y = 0; y < nSquaresGridSides; y++)
-		{
-			for (int x = 0; x < nSquaresGridSides; x++)
-			{
-				model = glm::mat4(1);
-				model = glm::translate(model, {float(x - 3) * squareSideLength * ratio / (float(width) / 2.0f), 
-					float(y - 3) * squareSideLength / (float(height) / 2.0f), 0.0f });
-				model = glm::scale(model, { 1.0f * ratio / (float(width) / 2.0f), 1.0f / (float(height) / 2.0f), 1.0f });
+		float currentFrame = glfwGetTime();
+		float dt = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 
-				GLint modelLoc = glGetUniformLocation(shader.ID, "model");
-				glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
+		pos = pos + moveGeometry(window, dt);
+		model = glm::mat4(1);
+		model = glm::translate(model, {pos.x * ratio / (float(width) / 2.0f), pos.y / (float(height) / 2.0f), 0.0f });
+		model = glm::scale(model, { 1.0f * ratio / (float(width) / 2.0f), 1.0f / (float(height) / 2.0f), 1.0f });
 
-				switch (colorsArr[y * nSquaresGridSides + x])
-				{
-				case Colors::Blue:
-					glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
-					break;
-				case Colors::Orange:
-					glUniform4f(colorLoc, 1.0f, 153.0f / 255.0f, 51.0f / 255.0f, 1.0f);
-					break;
-				case Colors::Green:
-					glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
-					break;
-				case Colors::Yellow:
-					glUniform4f(colorLoc, 1.0f, 1.0f, 0.0f, 1.0f);
-					break;
-				case Colors::Magenta:
-					glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
-					break;
-				case Colors::Purple:
-					glUniform4f(colorLoc, 102.0f / 255.0f, 0.0f, 204.0f / 255.0f, 1.0f);
-					break;
-				default:
-					glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
-					break;
-				}
-				
-				glBindVertexArray(VAO);
-				glDrawArrays(GL_TRIANGLES, 0, 3);
-				glDrawArrays(GL_TRIANGLES, 1, 4);
-			}
-		}
+		GLint modelLoc = glGetUniformLocation(shader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
+		
+		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 0.0f);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 1, 4);
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
@@ -232,3 +187,20 @@ int setupGeometry(const std::vector<float>& geometry)
 
 	return VAO;
 }
+
+glm::vec2 moveGeometry(GLFWwindow* window, float dt)
+{
+	float speed = 200.0f; // adjust accordingly
+	glm::vec2 moveBy = {0.0f, 0.0f};
+
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		moveBy.x += speed * dt;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		moveBy.x -= speed * dt;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		moveBy.y += speed * dt;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		moveBy.y -= speed * dt;
+
+	return moveBy;
+};
