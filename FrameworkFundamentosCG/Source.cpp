@@ -16,6 +16,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 // Protótipos das funções
 int setupGeometry(const std::vector<float>& geometry);
 
+glm::ivec2 handleInput(GLFWwindow* window, glm::ivec2& posArr, int maxX, int maxY, int colorsArr[], int& selectedColor, float& dt);
+
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
 
@@ -54,6 +56,10 @@ int main()
 
 	float squareSideLength = 40.0f;
 	std::vector<float> square = Square::Make(squareSideLength);
+	for (int i = 6; i < 9; i++)
+	{
+		std::swap(square[i], square[size_t(i + 3)]);
+	}
 	GLuint VAO = setupGeometry(square);;
 
 	// Enviando a cor desejada (vec4) para o fragment shader
@@ -86,27 +92,26 @@ int main()
 
 	glm::mat4 model = glm::mat4(1);
 
-	enum Colors { Blue, Orange, Green, Yellow, Magenta, Purple };
+	enum Colors { White, Black, Blue, Orange, Green, Yellow, Magenta, Purple };
 
 	std::random_device rd;
 	std::mt19937 rng(rd());
 	std::uniform_int_distribution<int> colorDist(0, 5);
 
-	const int nSquaresGridSides = 6;
+	const int nSquaresGridSides = 8;
 	const int nSquares = nSquaresGridSides * nSquaresGridSides;
 
 	int colorsArr[nSquares] = {};
-	int repeat;
 	for (int i = 0; i < nSquares; i++)
 	{
-		colorsArr[i] = colorDist(rng);
-		repeat = colorsArr[i];
-		if ((i > 0 && repeat == colorsArr[i - 1]) || 
-			(i >= nSquaresGridSides && repeat == colorsArr[i - nSquaresGridSides]))
-		{
-			i--;
-		}
+		colorsArr[i] = 0;
 	}
+
+	int selectedSquare;
+	int selectedColor = 0;
+	glm::ivec2 posArr = { 0, 0 };
+	float lastFrame = 0.0f;
+	float dt = 0.0f;;
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -120,23 +125,37 @@ int main()
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glLineWidth(4);
-		glPointSize(5);
+		float currentFrame = glfwGetTime();
+		dt += currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		int offset = nSquaresGridSides + 2;
+		handleInput(window, posArr, offset - 1, nSquaresGridSides - 1, colorsArr, selectedColor, dt);
+		selectedSquare = posArr.y * offset + posArr.x;
 
 		for (int y = 0; y < nSquaresGridSides; y++)
 		{
-			for (int x = 0; x < nSquaresGridSides; x++)
+			for (int x = 0; x < offset; x++)
 			{
+				if (x == offset - 2)
+					continue;
+
 				model = glm::mat4(1);
-				model = glm::translate(model, {float(x - 3) * squareSideLength * ratio / (float(width) / 2.0f), 
-					float(y - 3) * squareSideLength / (float(height) / 2.0f), 0.0f });
+				model = glm::translate(model, {float(x - nSquaresGridSides / 2) * squareSideLength * ratio / (float(width) / 2.0f), 
+					float(y - nSquaresGridSides / 2) * squareSideLength / (float(height) / 2.0f), 0.0f });
 				model = glm::scale(model, { 1.0f * ratio / (float(width) / 2.0f), 1.0f / (float(height) / 2.0f), 1.0f });
 
 				GLint modelLoc = glGetUniformLocation(shader.ID, "model");
 				glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
 
-				switch (colorsArr[y * nSquaresGridSides + x])
+				switch ((x < nSquaresGridSides) ? colorsArr[y * nSquaresGridSides + x] : y)
 				{
+				case Colors::White:
+					glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+					break;
+				case Colors::Black:
+					glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
+					break;
 				case Colors::Blue:
 					glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
 					break;
@@ -162,7 +181,17 @@ int main()
 				
 				glBindVertexArray(VAO);
 				glDrawArrays(GL_TRIANGLES, 0, 3);
-				glDrawArrays(GL_TRIANGLES, 1, 4);
+				glDrawArrays(GL_TRIANGLES, 2, 5);
+				glLineWidth(1);
+				glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
+				glDrawArrays(GL_LINE_LOOP, 0, 4);
+
+				if ((y * offset + x) == selectedSquare)
+				{
+					glLineWidth(4);
+					glUniform4f(colorLoc, 0.0f, 0.0f, 0.0f, 1.0f);
+					glDrawArrays(GL_LINE_LOOP, 0, 4);
+				}
 			}
 		}
 
@@ -232,3 +261,33 @@ int setupGeometry(const std::vector<float>& geometry)
 
 	return VAO;
 }
+
+glm::ivec2 handleInput(GLFWwindow* window, glm::ivec2& posArr, int maxX, int maxY, int colorsArr[], int& selectedColor, float& dt)
+{
+	if (dt > 0.1f)
+	{
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			(posArr.x + 1 > maxX) ? posArr.x = 0 : posArr.x++;
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			(posArr.x - 1 < 0) ? posArr.x = maxX : posArr.x--;
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			(posArr.y + 1 > maxY) ? posArr.y = 0 : posArr.y++;
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			(posArr.y - 1 < 0) ? posArr.y = maxY : posArr.y--;
+
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			if (posArr.x == maxX)
+			{
+				selectedColor = posArr.y;
+			}
+			else if (posArr.x < maxX - 1)
+			{
+				colorsArr[posArr.y * (maxX - 1) + posArr.x] = selectedColor;
+			}
+		}
+		dt = 0.0f;
+	}
+
+	return posArr;
+};
