@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include "Shader.h"
 #include "Camera.h"
+#include "Grid.h"
 #include <glm/glm.hpp> 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,7 +15,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 // Protótipos das funções
-int setupGeometry3D();
+int setupGeometry3D(const std::vector<float>& geometry);
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -56,13 +57,15 @@ int main()
 	Shader shader("../Shaders\\perspectiveShader_vs.txt", "../Shaders\\perspectiveShader_fs.txt");
 
 	// Gerando um buffer simples, com a geometria de um triângulo
-	GLuint VAO = setupGeometry3D();
+	Grid<float> grid(0.1f, 10, 10, 10);
+
+	GLuint VAO;
 
 	glUseProgram(shader.ID);
 
 	//Matriz de view
 	glm::mat4 view = glm::mat4(1);
-	view = glm::lookAt(cam.GetPos(), glm::vec3(0.0, 0.0, 0.0) + cam.GetFront(), cam.GetUp());
+	view = glm::lookAt(cam.GetPos(), glm::vec3(0.0f, 0.0f, 0.0f) + cam.GetFront(), cam.GetUp());
 	shader.setMat4("view", glm::value_ptr(view));
 
 	//Matriz de projeção
@@ -83,7 +86,7 @@ int main()
 		// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 		glfwPollEvents();
 
-		float currentFrame = glfwGetTime();
+		float currentFrame = float(glfwGetTime());
 		float dt = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 		cam.updateCameraPos(window, dt);
@@ -103,9 +106,41 @@ int main()
 		GLint modelLoc = glGetUniformLocation(shader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
 
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 18);
+		std::vector<float> triangles;
 
+		for (int z = 0; z < grid.GetUnitsDepth(); z++)
+		{
+			for (int y = 0; y < grid.GetUnitsHeight(); y++)
+			{
+				for (int x = 0; x < grid.GetUnitsWidth(); x++)
+				{
+					const int cubeIndex = z * grid.GetUnitsHeight() * grid.GetUnitsWidth() + y * grid.GetUnitsWidth() + x;
+
+					if (!grid.RenderCube(cubeIndex))
+						continue;
+
+					const auto& vertices = grid.GetCubesVertices()[cubeIndex].vertices;
+					const auto& indices = grid.GetCubesVertices()[cubeIndex].indices;
+
+					for (int i = 0; i < indices.size(); i++)
+					{
+						int offset = (indices[i]) * 6;
+						triangles.insert(triangles.end(), vertices.begin() + offset, vertices.begin() + offset + 6);
+						offset = (indices[++i]) * 6;
+						triangles.insert(triangles.end(), vertices.begin() + offset, vertices.begin() + offset + 6);
+						offset = (indices[++i]) * 6;
+						triangles.insert(triangles.end(), vertices.begin() + offset, vertices.begin() + offset + 6);
+					}
+				}
+			}
+		}
+
+		if (triangles.size() > 0)
+		{
+			VAO = setupGeometry3D(triangles);
+			glBindVertexArray(VAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36000);
+		}
 
 		glBindVertexArray(0);
 
@@ -167,42 +202,20 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 }
 
-int setupGeometry3D()
+int setupGeometry3D(const std::vector<float>& geometry)
 {
 	// Aqui setamos as coordenadas x, y e z do triângulo e as armazenamos de forma
 	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
 	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
 	// Pode ser arazenado em um VBO único ou em VBOs separados
-	GLfloat vertices[] = {
-		//Base da pirâmide: 2 triângulos
-		//x    y    z    r    g    b
-		-0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
-		-0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
-		 0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
-		 -0.5, -0.5, 0.5, 1.0, 1.0, 0.0,
-		  0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
-		  0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
-		  //
-		  -0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
-		   0.0,  0.5,  0.0, 1.0, 1.0, 0.0,
-		   0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
-		  -0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
-		   0.0,  0.5,  0.0, 1.0, 0.0, 1.0,
-		  -0.5, -0.5,  0.5, 1.0, 0.0, 1.0,
-		  -0.5, -0.5, 0.5, 1.0, 1.0, 0.0,
-		   0.0,  0.5, 0.0, 1.0, 1.0, 0.0,
-		   0.5, -0.5, 0.5, 1.0, 1.0, 0.0,
-		   0.5, -0.5, 0.5, 0.0, 1.0, 1.0,
-		   0.0,  0.5,  0.0, 0.0, 1.0, 1.0,
-		   0.5, -0.5, -0.5, 0.0, 1.0, 1.0,
-	};
+	std::vector<float> vertices = { geometry };
 	GLuint VBO, VAO;
 	//Geração do identificador do VBO
 	glGenBuffers(1, &VBO);
 	//Faz a conexão (vincula) do buffer como um buffer de array
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	//Envia os dados do array de floats para o buffer da OpenGl
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices.front(), GL_STATIC_DRAW);
 	//Geração do identificador do VAO (Vertex Array Object)
 	glGenVertexArrays(1, &VAO);
 	// Vincula (bind) o VAO primeiro, e em seguida  conecta e seta o(s) buffer(s) de vértices
@@ -220,9 +233,11 @@ int setupGeometry3D()
 	//Atributo posição (x, y, z)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
-	//Atributo cor (r, g, b)
+
+	////Atributo cor (r, g, b)
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
+
 	// Observe que isso é permitido, a chamada para glVertexAttribPointer registrou o VBO como o objeto de buffer de vértice 
 	// atualmente vinculado - para que depois possamos desvincular com segurança
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
