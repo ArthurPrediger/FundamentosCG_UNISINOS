@@ -17,19 +17,19 @@ public:
 		cubesVertices.reserve(numCubes);
 		renderBuffer.reserve(numCubes);
 
-		for (int z = -unitsDepth / 2; z < unitsDepth / 2; z++)
+		for (int z = 0; z < unitsDepth; z++)
 		{
-			for (int y = -unitsHeight / 2; y < unitsHeight / 2; y++)
+			for (int y = 0; y < unitsHeight; y++)
 			{
-				for (int x = -unitsWidth / 2; x < unitsWidth / 2; x++)
+				for (int x = 0; x < unitsWidth; x++)
 				{
 					IndexedTriangleList<T> iVerts = Cube::GetIndexedVertices<T>(cubesSize, {0.0f, 0.0f, 0.0f, 1.0f});
 					
 					for (int i = 0; i < iVerts.vertices.size(); i += 3)
 					{
-						iVerts.vertices[i++] += x * cubesSize;
-						iVerts.vertices[i++] += y * cubesSize;
-						iVerts.vertices[i++] += z * cubesSize;
+						iVerts.vertices[i++] += (float(x) - float(unitsWidth) / 2.0f) * cubesSize;
+						iVerts.vertices[i++] += (float(y) - float(unitsHeight) / 2.0f) * cubesSize;
+						iVerts.vertices[i++] += (float(z) - float(unitsDepth) / 2.0f) * cubesSize;
 					}
 
 					cubesVertices.emplace_back(iVerts);
@@ -37,6 +37,10 @@ public:
 				}
 			}
 		}
+	}
+	float GetCubesSize() const
+	{
+		return cubesSize;
 	}
 	int GetUnitsWidth() const
 	{
@@ -53,6 +57,23 @@ public:
 	bool RenderCube(int pos) const
 	{
 		return renderBuffer[pos];
+	}
+	void ApplyCubeColor(int cubeIndex, Color color)
+	{
+		auto& cubeVerts = cubesVertices[cubeIndex].vertices;
+
+		for (int i = 3; i < cubeVerts.size(); i += 3)
+		{
+			cubeVerts[i++] = color.r;
+			cubeVerts[i++] = color.g;
+			cubeVerts[i++] = color.b;
+		}
+
+		renderBuffer[cubeIndex] = true;
+	}
+	void RemoveCubeColor(int cubeIndex)
+	{
+		renderBuffer[cubeIndex] = false;
 	}
 	const std::vector<IndexedTriangleList<T>>& GetCubesVertices() const
 	{

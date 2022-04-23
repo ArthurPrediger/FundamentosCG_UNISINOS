@@ -32,7 +32,7 @@ public:
 	{
 		cameraUp = up;
 	}
-	void updateCameraPos(GLFWwindow* window, float dt)
+	void UpdateCameraPos(GLFWwindow* window, float dt)
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 			cameraPos += cameraSpeed * cameraFront * dt;

@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 #include "Shader.h"
 #include "Camera.h"
-#include "Grid.h"
+#include "InputGridManager.h"
 #include <glm/glm.hpp> 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -58,6 +58,7 @@ int main()
 
 	// Gerando um buffer simples, com a geometria de um triângulo
 	Grid<float> grid(0.1f, 10, 10, 10);
+	InputGridManager igm(grid);
 
 	GLuint VAO;
 
@@ -89,7 +90,7 @@ int main()
 		float currentFrame = float(glfwGetTime());
 		float dt = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		cam.updateCameraPos(window, dt);
+		cam.UpdateCameraPos(window, dt);
 
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
@@ -107,6 +108,8 @@ int main()
 		glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
 
 		std::vector<float> triangles;
+
+		igm.Update(window, triangles, dt);
 
 		for (int z = 0; z < grid.GetUnitsDepth(); z++)
 		{
@@ -139,7 +142,7 @@ int main()
 		{
 			VAO = setupGeometry3D(triangles);
 			glBindVertexArray(VAO);
-			glDrawArrays(GL_TRIANGLES, 0, 36000);
+			glDrawArrays(GL_TRIANGLES, 0, triangles.size() / 6);
 		}
 
 		glBindVertexArray(0);

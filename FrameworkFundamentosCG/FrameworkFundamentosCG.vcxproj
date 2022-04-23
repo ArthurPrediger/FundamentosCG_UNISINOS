@@ -163,6 +163,7 @@
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="IndexedTriangleList.h" />
+    <ClInclude Include="InputGridManager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
