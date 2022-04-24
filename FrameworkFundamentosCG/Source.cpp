@@ -111,14 +111,13 @@ int main()
 
 		igm.Update(window, triangles, dt);
 
+		int cubeIndex = 0;
 		for (int z = 0; z < grid.GetUnitsDepth(); z++)
 		{
 			for (int y = 0; y < grid.GetUnitsHeight(); y++)
 			{
-				for (int x = 0; x < grid.GetUnitsWidth(); x++)
+				for (int x = 0; x < grid.GetUnitsWidth(); x++, cubeIndex++)
 				{
-					const int cubeIndex = z * grid.GetUnitsHeight() * grid.GetUnitsWidth() + y * grid.GetUnitsWidth() + x;
-
 					if (!grid.RenderCube(cubeIndex))
 						continue;
 
