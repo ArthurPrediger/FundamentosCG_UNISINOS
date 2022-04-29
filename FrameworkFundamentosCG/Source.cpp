@@ -61,6 +61,9 @@ int main()
 	InputGridManager igm(grid);
 
 	GLuint VAO;
+	std::vector<float> gridVertices;
+	grid.InsertGridVertices(gridVertices);
+	GLuint VAO1 = setupGeometry3D(gridVertices);
 
 	glUseProgram(shader.ID);
 
@@ -80,6 +83,9 @@ int main()
 	glUseProgram(shader.ID);
 
 	float lastFrame = 0.0f;
+
+	int numVertsTriangles = (grid.GetTotalNumCubes() + 1) * 6;
+	int numVertsGrid = gridVertices.size() / 6;
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -111,37 +117,14 @@ int main()
 
 		igm.Update(window, triangles, dt);
 
-		int cubeIndex = 0;
-		for (int z = 0; z < grid.GetUnitsDepth(); z++)
-		{
-			for (int y = 0; y < grid.GetUnitsHeight(); y++)
-			{
-				for (int x = 0; x < grid.GetUnitsWidth(); x++, cubeIndex++)
-				{
-					if (!grid.RenderCube(cubeIndex))
-						continue;
-
-					const auto& vertices = grid.GetCubesVertices()[cubeIndex].vertices;
-					const auto& indices = grid.GetCubesVertices()[cubeIndex].indices;
-
-					for (int i = 0; i < indices.size(); i++)
-					{
-						int offset = (indices[i]) * 6;
-						triangles.insert(triangles.end(), vertices.begin() + offset, vertices.begin() + offset + 6);
-						offset = (indices[++i]) * 6;
-						triangles.insert(triangles.end(), vertices.begin() + offset, vertices.begin() + offset + 6);
-						offset = (indices[++i]) * 6;
-						triangles.insert(triangles.end(), vertices.begin() + offset, vertices.begin() + offset + 6);
-					}
-				}
-			}
-		}
-
 		if (triangles.size() > 0)
 		{
 			VAO = setupGeometry3D(triangles);
 			glBindVertexArray(VAO);
-			glDrawArrays(GL_TRIANGLES, 0, triangles.size() / 6);
+			glDrawArrays(GL_TRIANGLES, 0, numVertsTriangles);
+			glBindVertexArray(VAO1);
+			glLineWidth(2);
+			glDrawArrays(GL_LINE_STRIP, 0, numVertsGrid);
 		}
 
 		glBindVertexArray(0);
@@ -151,6 +134,7 @@ int main()
 	}
 	// Pede pra OpenGL desalocar os buffers
 	glDeleteVertexArrays(1, &VAO);
+	glDeleteVertexArrays(1, &VAO1);
 	// Finaliza a execução da GLFW, limpando os recursos alocados por ela
 	glfwTerminate();
 	return 0;

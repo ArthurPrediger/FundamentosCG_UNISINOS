@@ -143,6 +143,8 @@ public:
 			offset = (indices[++i]) * 6;
 			triangles.insert(triangles.end(), vertices.begin() + offset, vertices.begin() + offset + 6);
 		}
+
+		grid.InsertCubesTriangles(triangles);
 	}
 private:
 	enum class CoordinatePlane { XY, XZ };

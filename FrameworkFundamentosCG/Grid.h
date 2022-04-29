@@ -27,9 +27,9 @@ public:
 					
 					for (int i = 0; i < iVerts.vertices.size(); i += 3)
 					{
-						iVerts.vertices[i++] += (float(x) - float(unitsWidth) / 2.0f) * cubesSize;
-						iVerts.vertices[i++] += (float(y) - float(unitsHeight) / 2.0f) * cubesSize;
-						iVerts.vertices[i++] += (float(z) - float(unitsDepth) / 2.0f) * cubesSize;
+						iVerts.vertices[i++] += (T(x) - T(unitsWidth) / (T)2) * cubesSize;
+						iVerts.vertices[i++] += (T(y) - T(unitsHeight) / (T)2) * cubesSize;
+						iVerts.vertices[i++] += (T(z) - T(unitsDepth) / (T)2) * cubesSize;
 					}
 
 					cubesVertices.emplace_back(iVerts);
@@ -54,6 +54,10 @@ public:
 	{
 		return unitsDepth;
 	}
+	int GetTotalNumCubes() const
+	{
+		return unitsWidth * unitsHeight * unitsDepth;
+	}
 	bool RenderCube(int pos) const
 	{
 		return renderBuffer[pos];
@@ -75,9 +79,79 @@ public:
 	{
 		renderBuffer[cubeIndex] = false;
 	}
-	const std::vector<IndexedTriangleList<T>>& GetCubesVertices() const
+	void InsertCubesTriangles(std::vector<T>& triangles)
 	{
-		return cubesVertices;
+		int cubeIndex = 0;
+		for (int z = 0; z < GetUnitsDepth(); z++)
+		{
+			for (int y = 0; y < GetUnitsHeight(); y++)
+			{
+				for (int x = 0; x < GetUnitsWidth(); x++, cubeIndex++)
+				{
+					if (!RenderCube(cubeIndex))
+						continue;
+
+					const auto& vertices = cubesVertices[cubeIndex].vertices;
+					const auto& indices = cubesVertices[cubeIndex].indices;
+
+					for (int i = 0; i < indices.size(); i++)
+					{
+						int offset = (indices[i]) * 6;
+						triangles.insert(triangles.end(), vertices.begin() + offset, vertices.begin() + offset + 6);
+						offset = (indices[++i]) * 6;
+						triangles.insert(triangles.end(), vertices.begin() + offset, vertices.begin() + offset + 6);
+						offset = (indices[++i]) * 6;
+						triangles.insert(triangles.end(), vertices.begin() + offset, vertices.begin() + offset + 6);
+					}
+				}
+			}
+		}
+	}
+	void InsertGridVertices(std::vector<T>& vertices)
+	{
+		if (gridLinesUpdate)
+		{
+			std::vector<T> gridVertsIndices{
+				0, 1, 3, 2, // front side
+				0, 4, 5, 1, // bottom sidde
+				3, 7, 5, // left side
+				7, 6, 4, // back side
+				0, 2, 6, //right side
+				// top is drawn indirectly
+			};
+
+			std::vector<T> gridVerts;
+
+			for (int z = -1; z < 2; z += 2)
+			{
+				for (int y = -1; y < 2; y += 2)
+				{
+					for (int x = -1; x < 2; x += 2)
+					{
+						gridVerts.emplace_back(T(x) * T((float)unitsWidth / 2.0f * cubesSize) - (T)cubesSize / (T)2);
+						gridVerts.emplace_back(T(y) * T((float)unitsHeight / 2.0f * cubesSize) - (T)cubesSize / (T)2);
+						gridVerts.emplace_back(T(z * (-1)) * T((float)unitsDepth / 2.0f * cubesSize) - (T)cubesSize / (T)2);
+						gridVerts.emplace_back(colorGridLines.r);
+						gridVerts.emplace_back(colorGridLines.g);
+						gridVerts.emplace_back(colorGridLines.b);
+					}
+				}
+			}
+
+			for (int i = 0; i < gridVertsIndices.size(); i++)
+			{
+				int offset = (gridVertsIndices[i]) * 6;
+				gridVertices.insert(gridVertices.end(), gridVerts.begin() + offset, gridVerts.begin() + offset + 6);
+			}
+
+			vertices.insert(vertices.end(), gridVertices.begin(), gridVertices.end());
+
+			gridLinesUpdate = false;
+		}
+		else
+		{
+			vertices.insert(vertices.end(), gridVertices.begin(), gridVertices.end());
+		}
 	}
 private:
 	float cubesSize;
@@ -86,4 +160,7 @@ private:
 	int unitsDepth;
 	std::vector<bool> renderBuffer;
 	std::vector<IndexedTriangleList<T>> cubesVertices;
+	std::vector<T> gridVertices;
+	Color colorGridLines = { 0.0f, 0.0f, 0.0f, 0.0f };
+	bool gridLinesUpdate = true;
 };
