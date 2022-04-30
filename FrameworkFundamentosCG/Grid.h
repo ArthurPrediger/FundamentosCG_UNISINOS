@@ -23,7 +23,7 @@ public:
 			{
 				for (int x = 0; x < unitsWidth; x++)
 				{
-					IndexedTriangleList<T> iVerts = Cube::GetIndexedVertices<T>(cubesSize, {0.0f, 0.0f, 0.0f, 1.0f});
+					IndexedTriangleList<T> iVerts = Cube::GetIndexedVertices<T>(cubesSize, Colors::Black);
 					
 					for (int i = 0; i < iVerts.vertices.size(); i += 3)
 					{
@@ -41,6 +41,25 @@ public:
 	float GetCubesSize() const
 	{
 		return cubesSize;
+	}
+	Color GetCubeColor(int cubeIndex)
+	{
+		if (RenderCube(cubeIndex))
+		{
+			auto vertices = cubesVertices[cubeIndex].vertices;
+
+			Color color = Colors::Black;
+			int i = 3;
+			color.r = vertices[i++];
+			color.g = vertices[i++];
+			color.b = vertices[i];
+
+			return color;
+		}
+		else
+		{
+			return backgroundColor;
+		}
 	}
 	int GetUnitsWidth() const
 	{
@@ -161,6 +180,7 @@ private:
 	std::vector<bool> renderBuffer;
 	std::vector<IndexedTriangleList<T>> cubesVertices;
 	std::vector<T> gridVertices;
-	Color colorGridLines = { 0.0f, 0.0f, 0.0f, 0.0f };
+	Color colorGridLines = Colors::Black;
 	bool gridLinesUpdate = true;
+	Color backgroundColor = Colors::Gray;
 };

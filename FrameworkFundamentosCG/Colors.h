@@ -20,4 +20,5 @@ namespace Colors
 	static constexpr Color Purple = { 102.0f / 255.0f, 0.0f, 204.0f / 255.0f, 1.0f };
 	static constexpr Color Red = { 1.0f, 0.0f, 0.0f, 1.0f };
 	static constexpr Color Brown = { 165.0f / 255.0f, 42.0f / 255.0f, 42.0f / 255.0f, 1.0f };
+	static constexpr Color Gray = { 0.8f, 0.8f, 0.8f, 1.0f };
 }

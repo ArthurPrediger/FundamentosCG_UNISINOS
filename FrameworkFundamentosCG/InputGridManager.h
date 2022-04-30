@@ -2,6 +2,18 @@
 
 #include "Grid.h"
 
+static constexpr float PI = 3.14159265359;
+
+Color ColorBlend(Color c1, Color c2, float alpha)
+{
+	Color color = Colors::Black;
+	color.r = (c1.r * alpha + c2.r * (1.0f - alpha));
+	color.g = (c1.g * alpha + c2.g * (1.0f - alpha));
+	color.b = (c1.b * alpha + c2.b * (1.0f - alpha));
+
+	return color;
+};
+
 template <typename T>
 class InputGridManager
 {
@@ -85,7 +97,9 @@ public:
 		}
 
 		float cubesSize = grid.GetCubesSize();
-		IndexedTriangleList<T> selCubeVerts = Cube::GetIndexedVertices<T>(cubesSize, { 1.0f, 0.0f, 0.0f, 1.0f });
+		(alpha > 2.0f) ? alpha = 0.0f : alpha += dt_in;
+		Color cubeColor = ColorBlend(Colors::Red, grid.GetCubeColor(selectedCubeIndex), std::abs(sin(alpha * PI)));
+		IndexedTriangleList<T> selCubeVerts = Cube::GetIndexedVertices<T>(cubesSize, cubeColor);
 
 		for (int i = 0; i < selCubeVerts.vertices.size(); i += 3)
 		{
@@ -115,7 +129,8 @@ private:
 	Grid<T>& grid;
 	glm::ivec3 selectedCubePos = { 0, 0, grid.GetUnitsDepth() - 1};
 	int selectedCubeIndex = 0;
-	Color selectedColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	Color selectedColor = Colors::Black;
 	float dt = 0.0f;
+	float alpha = 0.0f;
 	CoordinatePlane cp = CoordinatePlane::XY;
 };
