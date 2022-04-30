@@ -84,7 +84,6 @@ int main()
 
 	float lastFrame = 0.0f;
 
-	int numVertsTriangles = (grid.GetTotalNumCubes() + 1) * 6;
 	int numVertsGrid = gridVertices.size() / 6;
 
 	// Loop da aplicação - "game loop"
@@ -119,9 +118,12 @@ int main()
 
 		if (triangles.size() > 0)
 		{
+			int numVertsTriangles = triangles.size() / 6;
+
 			VAO = setupGeometry3D(triangles);
 			glBindVertexArray(VAO);
 			glDrawArrays(GL_TRIANGLES, 0, numVertsTriangles);
+
 			glBindVertexArray(VAO1);
 			glLineWidth(2);
 			glDrawArrays(GL_LINE_STRIP, 0, numVertsGrid);

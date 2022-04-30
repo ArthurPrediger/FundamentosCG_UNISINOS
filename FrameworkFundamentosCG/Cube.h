@@ -4,15 +4,7 @@
 #include <glm/glm.hpp> 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-struct Color
-{
-	float r;
-	float g;
-	float b;
-	float a;
-};
-
+#include "Colors.h"
 
 class Cube
 {

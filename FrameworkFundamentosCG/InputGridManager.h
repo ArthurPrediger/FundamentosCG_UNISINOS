@@ -60,63 +60,26 @@ public:
 				}
 			}
 
-			Colors color = Colors::Default;
 			if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
-				color = Colors::White;
+				selectedColor = Colors::White;
 			else if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-				color = Colors::Black;
+				selectedColor = Colors::Black;
 			else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-				color = Colors::Blue;
+				selectedColor = Colors::Blue;
 			else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-				color = Colors::Orange;
+				selectedColor = Colors::Orange;
 			else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
-				color = Colors::Green;
+				selectedColor = Colors::Green;
 			else if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
-				color = Colors::Yellow;
+				selectedColor = Colors::Yellow;
 			else if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS)
-				color = Colors::Magenta;
+				selectedColor = Colors::Magenta;
 			else if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS)
-				color = Colors::Purple;
+				selectedColor = Colors::Purple;
 			else if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS)
-				color = Colors::Red;
+				selectedColor = Colors::Red;
 			else if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
-				color = Colors::Brown;
-
-			switch (color)
-			{
-			case Colors::White:
-				selectedColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-				break;
-			case Colors::Black:
-				selectedColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-				break;
-			case Colors::Blue:
-				selectedColor = { 0.0f, 0.0f, 1.0f, 1.0f };
-				break;
-			case Colors::Orange:
-				selectedColor = { 1.0f, 153.0f / 255.0f, 51.0f / 255.0f, 1.0f };
-				break;
-			case Colors::Green:
-				selectedColor = { 0.0f, 1.0f, 0.0f, 1.0f };
-				break;
-			case Colors::Yellow:
-				selectedColor = { 1.0f, 1.0f, 0.0f, 1.0f };
-				break;
-			case Colors::Magenta:
-				selectedColor = { 1.0f, 0.0f, 1.0f, 1.0f };
-				break;
-			case Colors::Purple:
-				selectedColor = { 102.0f / 255.0f, 0.0f, 204.0f / 255.0f, 1.0f };
-				break;
-			case Colors::Red:
-				selectedColor = { 1.0f, 0.0f, 0.0f, 1.0f };
-				break;
-			case Colors::Brown:
-				selectedColor = { 165.0f / 255.0f, 42.0f / 255.0f, 42.0f / 255.0f, 1.0f };
-				break;
-			default:
-				break;
-			}
+				selectedColor = Colors::Brown;
 
 			dt = 0.0f;
 		}
@@ -148,7 +111,6 @@ public:
 	}
 private:
 	enum class CoordinatePlane { XY, XZ };
-	enum class Colors { White, Black, Blue, Orange, Green, Yellow, Magenta, Purple, Red, Brown, Default };
 private:
 	Grid<T>& grid;
 	glm::ivec3 selectedCubePos = { 0, 0, grid.GetUnitsDepth() - 1};
