@@ -53,6 +53,10 @@ int main()
 	std::cout << "Renderer: " << renderer << std::endl;
 	std::cout << "OpenGL version supported " << version << std::endl;
 
+	int width, height;
+	glfwGetFramebufferSize(window, &width, &height);
+	glViewport(0, 0, width, height);
+
 	// Compilando e buildando o programa de shader
 	Shader shader("../Shaders\\perspectiveShader_vs.txt", "../Shaders\\perspectiveShader_fs.txt");
 
@@ -96,10 +100,6 @@ int main()
 		float dt = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 		cam.UpdateCameraPos(window, dt);
-
-		int width, height;
-		glfwGetFramebufferSize(window, &width, &height);
-		glViewport(0, 0, width, height);
 
 		// Limpa o buffer de cor e de profundidade
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
