@@ -7,12 +7,18 @@
 #include <glm/glm.hpp> 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "stb_image.h"
+#include "GameObject.h"
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // Protótipos das funções
 int setupGeometry();
+
+int setupSprite();
+
+int loadTexture(std::string path);
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -42,33 +48,56 @@ int main()
 	std::cout << "Renderer: " << renderer << std::endl;
 	std::cout << "OpenGL version supported " << version << std::endl;
 
-	// Definindo as dimensões da viewport com as mesmas dimensões da janela da aplicação
-	int width, height;
-	glfwGetFramebufferSize(window, &width, &height);
-	glViewport(0, 0, width, height);
-
-
 	// Compilando e buildando o programa de shader
-	Shader shader("../Shaders\\shader1.vs", "../Shaders\\shader1.fs");
+	Shader shader("../Shaders\\shader_texture_vs.txt", "../Shaders\\shader_texture_fs.txt");
 
-	// Gerando um buffer simples, com a geometria de um triângulo
-	GLuint VAO = setupGeometry();
-
-
-	// Enviando a cor desejada (vec4) para o fragment shader
-	// Utilizamos a variáveis do tipo uniform em GLSL para armazenar esse tipo de info
-	// que não está nos buffers
-	GLint colorLoc = glGetUniformLocation(shader.ID, "inputColor");
-	assert(colorLoc > -1);
-
+	// Ativando o shader
 	glUseProgram(shader.ID);
 
+	//Criando a matriz de projeção usando a GLM
+	glm::mat4 projection = glm::mat4(1); //matriz identidade
+	projection = glm::ortho(0.0f, float(WIDTH), 0.0f, float(HEIGHT), -1.0f, 1.0f);
+
+	GLint projLoc = glGetUniformLocation(shader.ID, "projection");
+	glUniformMatrix4fv(projLoc, 1, false, glm::value_ptr(projection));
+
+	//Habilitando a profundidade
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_ALWAYS);
+
+	//Habilitando a transparência
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	std::vector<float> vertices = {
+		// posicoes          // cores          // coordenadas de textura
+		0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0, // superior direito
+		0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // inferior direito
+		-0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // inferior esquerdo
+		-0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,   0.0f, 1.0  // superior esquerdo
+	};
+	std::vector<unsigned int> indices = {
+	0, 1, 3, // primeiro triangulo
+	1, 2, 3  // segundo triangulo
+	};
+	IndexedTriangleList triangles(vertices, indices);
+
+	GameObject mario = GameObject::createGameObject();
+	mario.transform.translation = glm::vec3(400.0f, 300.0f, 0.0f);
+	mario.transform.rotation = glm::vec3(0.0f, 0.0f, glm::pi<float>());
+	mario.transform.scale = glm::vec3(200.0f, 200.0f, 1.0f);
+	mario.model = std::make_shared<Model>(triangles, "../Textures/mario.png", mario.transform.mat4());
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
 	{
 		// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 		glfwPollEvents();
+
+		// Definindo as dimensões da viewport com as mesmas dimensões da janela da aplicação
+		int width, height;
+		glfwGetFramebufferSize(window, &width, &height);
+		glViewport(0, 0, width, height);
 
 		// Limpa o buffer de cor
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f); //cor de fundo
@@ -77,24 +106,11 @@ int main()
 		glLineWidth(10);
 		glPointSize(20);
 
-		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		// Chamada de desenho - drawcall
-		// CONTORNO - GL_LINE_LOOP
-		// PONTOS - GL_POINTS
-		glUniform4f(colorLoc, 1.0f, 0.0f, 1.0f, 1.0f); //enviando cor para variável uniform inputColor
-		glDrawArrays(GL_POINTS, 0, 3);
-		glBindVertexArray(0);
+		mario.model->draw(shader.ID);
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
 	}
-	// Pede pra OpenGL desalocar os buffers
-	glDeleteVertexArrays(1, &VAO);
 	// Finaliza a execução da GLFW, limpando os recursos alocados por ela
 	glfwTerminate();
 	return 0;
@@ -124,7 +140,6 @@ int setupGeometry()
 		-0.5, -0.5, 0.0,
 		 0.5, -0.5, 0.0,
 		 0.0, 0.5, 0.0,
-		 //outro triangulo vai aqui
 	};
 
 	GLuint VBO, VAO;
@@ -159,4 +174,93 @@ int setupGeometry()
 	glBindVertexArray(0);
 
 	return VAO;
+}
+
+
+int setupSprite()
+{
+	GLuint VAO;
+	GLuint VBO, EBO;
+
+	float vertices[] = {
+		// posicoes          // cores          // coordenadas de textura
+		0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0, // superior direito
+		0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // inferior direito
+		-0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // inferior esquerdo
+		-0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,   0.0f, 1.0  // superior esquerdo
+	};
+	unsigned int indices[] = {
+	0, 1, 3, // primeiro triangulo
+	1, 2, 3  // segundo triangulo
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// Primeiro atributo - Layout 0 - posição - 3 valores - x, y, z
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// Segundo atributo - Layout 1 - cor - 3 valores - r, g, b
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	// Terceiro atributo - Layout 2 - coordenadas de textura - 2 valores - s, t (ou u, v)
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	glBindVertexArray(0); //desvincula
+
+	return VAO;
+}
+
+
+int loadTexture(std::string path)
+{
+	GLuint texID;
+
+	// Gera o identificador da textura na memória 
+	glGenTextures(1, &texID);
+	glBindTexture(GL_TEXTURE_2D, texID);
+
+	//Ajusta os parâmetros de wrapping e filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//Carregamento da imagem
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+
+	if (data)
+	{
+		if (nrChannels == 3) //jpg, bmp
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		}
+		else //png
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		}
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+
+	stbi_image_free(data);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return texID;
 }
