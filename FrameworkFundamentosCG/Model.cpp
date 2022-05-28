@@ -1,6 +1,6 @@
 #include "Model.h"
 
-Model::Model(const IndexedTriangleList<float>& triangles, const std::string& texturePath, const glm::mat4& transformationMatrix)
+Model::Model(const IndexedTriangleList<Vertex>& triangles, const std::string& texturePath, const glm::mat4& transformationMatrix)
 	:
 	transformationMatrix(transformationMatrix)
 {
@@ -40,7 +40,7 @@ void Model::draw(GLuint shaderID)
 	glBindTexture(GL_TEXTURE_2D, 0); //unbind da textura
 }
 
-void Model::setupSprite(const IndexedTriangleList<float>& triangles)
+void Model::setupSprite(const IndexedTriangleList<Vertex>& triangles)
 {
 	GLuint VAO;
 	GLuint VBO, EBO;
