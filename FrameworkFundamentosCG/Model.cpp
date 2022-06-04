@@ -1,7 +1,8 @@
 #include "Model.h"
 
-Model::Model(const IndexedTriangleList<Vertex>& triangles, const std::string& texturePath, const glm::mat4& transformationMatrix)
+Model::Model(Shader* shader, const IndexedTriangleList<Vertex>& triangles, const std::string& texturePath, const glm::mat4& transformationMatrix)
 	:
+	shader(shader),
 	transformationMatrix(transformationMatrix)
 {
 	setupSprite(triangles);
@@ -14,16 +15,16 @@ Model::~Model()
 	glDeleteVertexArrays(1, &VAO);
 }
 
-void Model::draw(GLuint shaderID)
+void Model::draw()
 {
 	// Associando com o shader o buffer de textura que conectaremos
 	// antes de desenhar com o bindTexture
-	glUniform1i(glGetUniformLocation(shaderID, "tex_buffer"), 0);
+	glUniform1i(glGetUniformLocation(shader->ID, "tex_buffer"), 0);
 
 	//Criando a matriz de modelo usando a GLM
 	glm::mat4 model{ 1.0f };
 	model = model * transformationMatrix;
-	GLint modelLoc = glGetUniformLocation(shaderID, "model");
+	GLint modelLoc = glGetUniformLocation(shader->ID, "model");
 	glUniformMatrix4fv(modelLoc, 1, false, glm::value_ptr(model));
 
 	//Ativando o primeiro buffer de textura (0) e conectando ao identificador gerado

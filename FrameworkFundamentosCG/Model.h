@@ -25,16 +25,17 @@ public:
 		glm::vec2 textCoodinates;
 	};
 public:
-	Model(const IndexedTriangleList<Vertex>& triangles, const std::string& texturePath, const glm::mat4& transformationMatrix);
+	Model(Shader* shader, const IndexedTriangleList<Vertex>& triangles, const std::string& texturePath, const glm::mat4& transformationMatrix);
 	~Model();
 	Model(const Model&) = delete;
 	Model& operator=(const Model&) = delete;
-	void draw(GLuint shaderID);
+	void draw();
 private:
 	void setupSprite(const IndexedTriangleList<Vertex>& triangles);
 	void loadTexture(const std::string& path);
 private:
-	glm::mat4 transformationMatrix;
 	GLuint VAO = 0;
-	GLuint texID = 0;
+	GLuint texID;
+	Shader* shader;
+	glm::mat4 transformationMatrix;
 };

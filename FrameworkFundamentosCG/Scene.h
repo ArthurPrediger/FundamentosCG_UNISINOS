@@ -6,10 +6,9 @@
 class Scene
 {
 public:
-	Scene(GLuint shaderID);
+	Scene(Shader* shader);
 	void draw() const;
 private:
-	GLuint shaderID;
 	std::vector<GameObject> gameObjects;
 	std::vector<Model::Vertex> vertices = {
 		 // posicoes            // cores              // coordenadas de textura
