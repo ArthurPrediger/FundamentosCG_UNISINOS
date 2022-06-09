@@ -27,6 +27,26 @@ void Character::update(float dt, Shader* shader)
 	animations[(int)iCurSequence].update(dt, shader, gameObject.transform.mat4());
 }
 
+void Character::handleInput(GLFWwindow* window)
+{
+	glm::vec2 dir{ 0.0f, 0.0f };
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		dir.x++;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		dir.x--;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		dir.y++;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		dir.y--;
+
+	if (dir != glm::vec2{ 0.0f, 0.0f })
+	{
+		dir = glm::normalize(dir);
+	}
+
+	setDirection(dir);
+}
+
 void Character::setDirection(const glm::vec2& dir)
 {
 	if (dir.x > 0.0f)

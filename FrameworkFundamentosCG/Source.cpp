@@ -89,7 +89,7 @@ int main()
 		glLineWidth(10);
 		glPointSize(20);
 
-		character.setDirection({ 0.0f, 0.0f });
+		character.handleInput(window);
 		character.update(ft.Mark(), &shader);
 		character.draw();
 		//scene.draw();

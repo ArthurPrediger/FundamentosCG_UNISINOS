@@ -20,8 +20,10 @@ private:
 public:
 	Character(const glm::vec2& pos, const glm::vec2& scale);
 	void update(float dt, Shader* shader);
-	void setDirection(const glm::vec2& dir);
+	void handleInput(GLFWwindow* window);
 	void draw() const;
+private:
+	void setDirection(const glm::vec2& dir);
 private:
 	const std::string& spritePath;
 	glm::vec2 vel = { 0.0f, 0.0f };
@@ -29,7 +31,7 @@ private:
 	int nAnimations = 4;
 	std::vector<Animation> animations;
 	Sequence iCurSequence = Sequence::StandingDown;
-	float speed = 100.0f;
+	float speed = 150.0f;
 	GameObject gameObject;
 	std::vector<Model::Vertex> vertices = {
 		// posicoes            // cores              // coordenadas de textura
