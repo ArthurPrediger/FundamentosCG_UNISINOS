@@ -69,7 +69,7 @@ int main()
 
 	FrameTimer ft{};
 	Character character({ 400.0f, 300.0f }, { 120.0f, 150.0f });
-	//Scene scene{&shader};
+	Scene scene{&shader};
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -89,10 +89,10 @@ int main()
 		glLineWidth(10);
 		glPointSize(20);
 
+		scene.draw();
 		character.handleInput(window);
 		character.update(ft.Mark(), &shader);
 		character.draw();
-		//scene.draw();
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);

@@ -25,7 +25,7 @@ public:
 private:
 	void setDirection(const glm::vec2& dir);
 private:
-	const std::string& spritePath;
+	std::string spritePath;
 	glm::vec2 vel = { 0.0f, 0.0f };
 	int nFrames = 4;
 	int nAnimations = 4;

@@ -77,11 +77,11 @@ void Character::setDirection(const glm::vec2& dir)
 		}
 		else if (vel.y < 0.0f)
 		{
-			iCurSequence = Sequence::StandingUp;
+			iCurSequence = Sequence::StandingDown;
 		}
 		else if (vel.y > 0.0f)
 		{
-			iCurSequence = Sequence::StandingDown;
+			iCurSequence = Sequence::StandingUp;
 		}
 	}
 	vel = dir * speed;

@@ -17,7 +17,7 @@ private:
 	std::shared_ptr<Model> model;
 	const IndexedTriangleList<Model::Vertex>& triangles;
 	glm::vec3 chroma;
-	std::string spritePath;
+	const std::string& spritePath;
 	std::vector<glm::vec2> framesOffsets;
 	int iCurFrame = 0;
 	float holdTime;
