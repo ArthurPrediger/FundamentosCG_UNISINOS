@@ -15,7 +15,7 @@ private:
 	void advance();
 private:
 	std::shared_ptr<Model> model;
-	IndexedTriangleList<Model::Vertex> triangles;
+	const IndexedTriangleList<Model::Vertex>& triangles;
 	glm::vec3 chroma;
 	std::string spritePath;
 	std::vector<glm::vec2> framesOffsets;
