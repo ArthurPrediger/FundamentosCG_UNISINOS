@@ -9,7 +9,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "stb_image.h"
 #include "FrameTimer.h"
-#include "Character.h"
 #include "Scene.h"
 
 // Protótipo da função de callback de teclado
@@ -19,7 +18,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 int setupGeometry();
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
-const GLuint WIDTH = 800, HEIGHT = 600;
+const GLuint WIDTH = 960, HEIGHT = 720;
 
 // Função MAIN
 int main()
@@ -68,7 +67,7 @@ int main()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	FrameTimer ft{};
-	Character character({ 400.0f, 300.0f }, { 120.0f, 150.0f });
+	//Character character({ 400.0f, 300.0f }, {60.0f, 75.0f});
 	Scene scene{&shader};
 
 	// Loop da aplicação - "game loop"
@@ -89,10 +88,10 @@ int main()
 		glLineWidth(10);
 		glPointSize(20);
 
-		scene.draw();
-		character.handleInput(window);
-		character.update(ft.Mark(), &shader);
-		character.draw();
+		scene.update(window, ft.Mark());
+		//character.handleInput(window);
+		//character.update(ft.Mark(), &shader);
+		//character.draw();
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);

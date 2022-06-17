@@ -1,4 +1,5 @@
 #include "Character.h"
+#include "TileField.h"
 
 Character::Character(const glm::vec2& pos, const glm::vec2& scale)
 	:
@@ -27,61 +28,53 @@ void Character::update(float dt, Shader* shader)
 	animations[(int)iCurSequence].update(dt, shader, gameObject.transform.mat4());
 }
 
-void Character::handleInput(GLFWwindow* window)
-{
-	glm::vec2 dir{ 0.0f, 0.0f };
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		dir.x++;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		dir.x--;
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		dir.y++;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		dir.y--;
-
-	if (dir != glm::vec2{ 0.0f, 0.0f })
-	{
-		dir = glm::normalize(dir);
-	}
-
-	setDirection(dir);
-}
-
 void Character::setDirection(const glm::vec2& dir)
 {
-	if (dir.x > 0.0f)
+	if (std::abs(dir.x) > std::abs(dir.y))
 	{
-		iCurSequence = Sequence::WalkingRight;
+		if (dir.x > 0.0f)
+		{
+			iCurSequence = Sequence::WalkingRight;
+		}
+		else if (dir.x < 0.0f)
+		{
+			iCurSequence = Sequence::WalkingLeft;
+		}
 	}
-	else if (dir.x < 0.0f)
+	else if (std::abs(dir.y) > std::abs(dir.x))
 	{
-		iCurSequence = Sequence::WalkingLeft;
-	}
-	else if (dir.y > 0.0f)
-	{
-		iCurSequence = Sequence::WalkingUp;
-	}
-	else if (dir.y < 0.0f)
-	{
-		iCurSequence = Sequence::WalkingDown;
+		if (dir.y > 0.0f && dir.y > dir.x)
+		{
+			iCurSequence = Sequence::WalkingUp;
+		}
+		else if (dir.y < 0.0f)
+		{
+			iCurSequence = Sequence::WalkingDown;
+		}
 	}
 	else
 	{
-		if (vel.x > 0.0f)
+		if (std::abs(vel.x) > std::abs(vel.y))
 		{
-			iCurSequence = Sequence::StandingRight;
+			if (vel.x > 0.0f)
+			{
+				iCurSequence = Sequence::StandingRight;
+			}
+			else if (vel.x < 0.0f)
+			{
+				iCurSequence = Sequence::StandingLeft;
+			}
 		}
-		else if (vel.x < 0.0f)
+		else
 		{
-			iCurSequence = Sequence::StandingLeft;
-		}
-		else if (vel.y < 0.0f)
-		{
-			iCurSequence = Sequence::StandingDown;
-		}
-		else if (vel.y > 0.0f)
-		{
-			iCurSequence = Sequence::StandingUp;
+			if (vel.y < 0.0f)
+			{
+				iCurSequence = Sequence::StandingDown;
+			}
+			else if (vel.y > 0.0f)
+			{
+				iCurSequence = Sequence::StandingUp;
+			}
 		}
 	}
 	vel = dir * speed;

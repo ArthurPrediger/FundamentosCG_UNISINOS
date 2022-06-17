@@ -8,6 +8,10 @@ public:
 	Tile(const std::string& tileSetPath, Shader* shader, const glm::vec2& pos, const glm::vec2& scale,
 		float normalizedTileTextureWidth, float normalizedTileTextureHeight, const glm::vec2& tileSetOffset);
 	void draw() const;
+	glm::vec2 getPosition() const
+	{
+		return glm::vec2(gameObject.transform.translation);
+	}
 private:
 	const std::string& tileSetPath;
 	Shader* shader;

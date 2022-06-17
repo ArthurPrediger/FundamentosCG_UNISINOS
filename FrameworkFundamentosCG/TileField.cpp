@@ -1,16 +1,16 @@
 #include "TileField.h"
 
-TileField::TileField(const std::vector<int>& tileMap, const std::vector<std::string>& tileSetPaths, 
-	const std::vector<glm::vec2>& normalizedTexturesDimensions, const glm::vec2& fieldOffsets,
-	const std::vector<glm::vec2>& tileSetOffsets, Shader* shader)
+TileField::TileField(int xDimension, int yDimension, const std::vector<int>& tileMap, 
+	const std::vector<std::string>& tileSetPaths, const std::vector<glm::vec2>& normalizedTexturesDimensions, 
+	const glm::vec2& fieldOffsets, const std::vector<glm::vec2>& tileSetOffsets, Shader* shader)
 	:
 	shader(shader)
 {
-	for (int tileY = 0; tileY < 10; tileY++)
+	for (int tileY = 0; tileY < yDimension; tileY++)
 	{
-		for (int tileX = 0; tileX < 10; tileX++)
+		for (int tileX = 0; tileX < xDimension; tileX++)
 		{
-			size_t index = size_t(tileY) * 10 + tileX;
+			size_t index = size_t(tileY) * xDimension + tileX;
 			tiles.emplace_back(Tile(
 				tileSetPaths[tileMap[index]],
 				shader,
