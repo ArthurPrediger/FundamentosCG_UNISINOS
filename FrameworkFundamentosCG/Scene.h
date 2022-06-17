@@ -1,23 +1,20 @@
 #pragma once
 
-#include "IndexedTriangleList.h"
-#include "TileField.h"
-#include "Character.h"
+#include <string>
 
 class Scene
 {
 public:
-	Scene(Shader* shader);
-	void update(GLFWwindow* window, float dt);
+	Scene(const std::string& name)
+		:
+		name(name)
+	{}
+	virtual void update(GLFWwindow* window, float dt) = 0;
+	virtual void draw() = 0;
+	const std::string& getName() const
+	{
+		return name;
+	}
 private:
-	void handleInput(GLFWwindow* window);
-private:
-	Shader* shader;
-	glm::ivec2 charFieldPos = { 0 , 0 };
-	glm::vec2 charDir = { 0.0f , 0.0f };
-	std::unique_ptr<Character> character;
-	int xDimField = 10;
-	int yDimField = 10;
-	TileField tf;
-	float time = 0.0f;
+	std::string name;
 };

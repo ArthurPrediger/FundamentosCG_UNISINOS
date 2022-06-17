@@ -1,7 +1,8 @@
-#include "Scene.h"
+#include "Level_1.h"
 
-Scene::Scene(Shader* shader)
+Level_1::Level_1(const std::string name, Shader* shader)
 	:
+	Scene(name),
 	shader(shader)
 {
 	std::vector<int> tileMap;
@@ -40,19 +41,23 @@ Scene::Scene(Shader* shader)
 	tf = { xDimField, yDimField, tileMap, tileSetPaths, normalizedTexturesDimensions, 
 		   { 480.0f, 180.0f }, tileSetOffsets, shader };
 
-	character = std::make_unique<Character>(tf.getTilePosition(0), glm::vec2{60.0f, 75.0f});
+	character = std::make_unique<Character>(shader, tf.getTilePosition(0), glm::vec2{60.0f, 75.0f});
 }
 
-void Scene::update(GLFWwindow* window, float dt)
+void Level_1::update(GLFWwindow* window, float dt)
 {
 	time += dt;
-	tf.draw();
 	handleInput(window);
-	character->update(dt, shader);
+	character->update(dt);
+}
+
+void Level_1::draw()
+{
+	tf.draw();
 	character->draw();
 }
 
-void Scene::handleInput(GLFWwindow* window)
+void Level_1::handleInput(GLFWwindow* window)
 {
 	const auto holdTime = 0.5f;
 	const auto prevPos = charFieldPos;

@@ -1,8 +1,9 @@
 #include "Character.h"
 #include "TileField.h"
 
-Character::Character(const glm::vec2& pos, const glm::vec2& scale)
+Character::Character(Shader* shader, const glm::vec2& pos, const glm::vec2& scale)
 	:
+	shader(shader),
 	spritePath("../Textures/character_sheet.png"),
 	gameObject(GameObject::createGameObject())
 {
@@ -14,18 +15,23 @@ Character::Character(const glm::vec2& pos, const glm::vec2& scale)
 	
 	for (int i = 0; i < (int)Sequence::StandingDown; i++)
 	{
-		animations.emplace_back(Animation(gameObject.model, triangles, 0.0f, dy * i, dx, 0.0f, 4, spritePath, 0.16f));
+		animations.emplace_back(Animation(shader, gameObject.model, triangles, 0.0f, dy * i, dx, 0.0f, 4, spritePath, 0.16f));
 	}
 	for (int i = (int)Sequence::StandingDown; i < (int)Sequence::Count; i++)
 	{
-		animations.emplace_back(Animation(gameObject.model, triangles, 0.0f, dy * i, 0.0f, 0.0f, 1, spritePath, 0.16f));
+		animations.emplace_back(Animation(shader, gameObject.model, triangles, 0.0f, dy * i, 0.0f, 0.0f, 1, spritePath, 0.16f));
 	}
 }
 
-void Character::update(float dt, Shader* shader)
+void Character::update(float dt)
 {
 	gameObject.transform.translation += glm::vec3{ vel.x * dt, vel.y * dt, 0.0f };
-	animations[(int)iCurSequence].update(dt, shader, gameObject.transform.mat4());
+	animations[(int)iCurSequence].update(dt, gameObject.transform.mat4());
+}
+
+void Character::draw() const
+{
+	animations[(int)iCurSequence].draw();
 }
 
 void Character::setDirection(const glm::vec2& dir)
@@ -78,9 +84,4 @@ void Character::setDirection(const glm::vec2& dir)
 		}
 	}
 	vel = dir * speed;
-}
-
-void Character::draw() const
-{
-	animations[(int)iCurSequence].draw();
 }

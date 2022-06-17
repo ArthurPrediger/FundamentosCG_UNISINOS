@@ -6,14 +6,15 @@
 class Animation
 {
 public:
-	Animation(std::shared_ptr<Model> model, const IndexedTriangleList<Model::Vertex>& triangles,
+	Animation(Shader* shader, std::shared_ptr<Model> model, const IndexedTriangleList<Model::Vertex>& triangles,
 		float x_first, float y_first, float dx , float dy, int count, const std::string& spritePath,
 		float holdTime, glm::vec3 chroma = {1.0f, 0.0f, 1.0f});
 	void draw() const;
-	void update(float dt, Shader* shader, const glm::mat4& transformationMatrix);
+	void update(float dt, const glm::mat4& transformationMatrix);
 private:
 	void advance();
 private:
+	Shader* shader;
 	std::shared_ptr<Model> model;
 	const IndexedTriangleList<Model::Vertex>& triangles;
 	glm::vec3 chroma;

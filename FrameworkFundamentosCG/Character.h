@@ -18,8 +18,8 @@ private:
 		Count
 	};
 public:
-	Character(const glm::vec2& pos, const glm::vec2& scale);
-	void update(float dt, Shader* shader);
+	Character(Shader* shader, const glm::vec2& pos, const glm::vec2& scale);
+	void update(float dt);
 	void draw() const;
 	void setDirection(const glm::vec2& dir);
 	glm::vec2 getPosition() const
@@ -27,6 +27,7 @@ public:
 		return glm::vec2(gameObject.transform.translation);
 	}
 private:
+	Shader* shader;
 	std::string spritePath;
 	glm::vec2 vel = { 0.0f, 0.0f };
 	int nFrames = 4;

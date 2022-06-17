@@ -1,9 +1,11 @@
 #include "Animation.h"
 
-Animation::Animation(std::shared_ptr<Model> model, const IndexedTriangleList<Model::Vertex>& triangles,
-	float x_first, float y_first, float dx, float dy, int count, const std::string& spritePath,
+Animation::Animation(Shader* shader, std::shared_ptr<Model> model, 
+	const IndexedTriangleList<Model::Vertex>& triangles, float x_first, 
+	float y_first, float dx, float dy, int count, const std::string& spritePath,
 	float holdTime, glm::vec3 chroma)
 	:
+	shader(shader),
 	model(model),
 	triangles(triangles),
 	spritePath(spritePath),
@@ -18,10 +20,11 @@ Animation::Animation(std::shared_ptr<Model> model, const IndexedTriangleList<Mod
 
 void Animation::draw() const
 {
+	shader->setVec2("offsets", framesOffsets[(size_t)iCurFrame].x, framesOffsets[(size_t)iCurFrame].y);
 	model->draw();
 }
 
-void Animation::update(float dt, Shader* shader, const glm::mat4& transformationMatrix)
+void Animation::update(float dt, const glm::mat4& transformationMatrix)
 {
 	curFrameTime += dt;
 	while (curFrameTime >= holdTime)
@@ -30,7 +33,6 @@ void Animation::update(float dt, Shader* shader, const glm::mat4& transformation
 		curFrameTime -= holdTime;
 	}
 
-	shader->setVec2("offsets", framesOffsets[(size_t)iCurFrame].x, framesOffsets[(size_t)iCurFrame].y);
 	model = std::make_shared<Model>(shader, triangles, spritePath, transformationMatrix);
 }
 
