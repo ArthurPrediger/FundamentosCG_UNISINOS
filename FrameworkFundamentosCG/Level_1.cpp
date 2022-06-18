@@ -7,12 +7,11 @@ Level_1::Level_1(const std::string name, Shader* shader)
 {
 	std::vector<int> tileMap;
 
-
 	tileMap.insert(tileMap.end(),
 		{ 1, 1, 0, 0, 1, 0, 1, 0, 0, 0,
 		  0, 1, 0, 1, 1, 1, 1, 0, 0, 0,
-		  0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-		  0, 0, 0, 1, 1, 0, 1, 1, 1, 0,
+		  0, 1, 1, 1, 1, 1, 1, 0, 0, 1,
+		  0, 0, 0, 1, 1, 0, 1, 1, 1, 1,
 		  0, 0, 0, 1, 0, 1, 1, 0, 0, 0,
 		  0, 1, 0, 1, 1, 1, 1, 0, 0, 0,
 		  0, 1, 1, 1, 1, 0, 1, 1, 1, 0,
@@ -20,34 +19,50 @@ Level_1::Level_1(const std::string name, Shader* shader)
 		  0, 0, 0, 1, 1, 0, 1, 0, 1, 1,
 		  0, 1, 1, 0, 1, 0, 1, 0, 1, 1 });
 
+	std::vector<std::string> tilesTypes = {
+		"water",
+		"ground"
+	};
+
 	std::vector<std::string> tileSetPaths = {
 		"../TileSets/Solid_Tiles_Flat_128x88.png", 
-		"../TileSets/Ground_Rocky1_256x128.png",
-		"../TileSets/Ground_Rocky2_256x128.png"
+		"../TileSets/Ground_Rocky1_256x128.png"
 	};
 
 	std::vector<glm::vec2> normalizedTexturesDimensions = { 
 		{ 1.0f / 6.0f, 1.0f },
-		{ 1.0f / 3.0f, 1.0f / 5.0f },
 		{ 1.0f / 3.0f, 1.0f / 5.0f }
 	};
 
 	std::vector<glm::vec2> tileSetOffsets = { 
 		{ 5.0f / 6.0f, 0.0f },
-		{ 2.0f / 3.0f, 3.0f / 5.0f },
-		{ 2.0f / 3.0f, 3.0f / 5.0f },
+		{ 2.0f / 3.0f, 3.0f / 5.0f }
 	};
 
-	tf = { xDimField, yDimField, tileMap, tileSetPaths, normalizedTexturesDimensions, 
-		   { 480.0f, 180.0f }, tileSetOffsets, shader };
+	tf = { xDimField, yDimField, 
+		   std::move(tileMap), 
+		   std::move(tilesTypes),
+		   std::move(tileSetPaths), 
+		   std::move(normalizedTexturesDimensions), 
+		   { 480.0f, 180.0f },
+		   std::move(tileSetOffsets), 
+		   shader };
 
-	character = std::make_unique<Character>(shader, tf.getTilePosition(0), glm::vec2{60.0f, 75.0f});
+	auto pos = tf.getTilePosition(initialCharPos.y * xDimField + initialCharPos.x);
+	character = std::make_unique<Character>(shader, pos, glm::vec2{60.0f, 75.0f});
 }
 
 void Level_1::update(GLFWwindow* window, float dt)
 {
 	time += dt;
-	handleInput(window);
+	if (!resetting)
+	{
+		handleInput(window);
+	}
+	else
+	{
+		reset();
+	}
 	character->update(dt);
 }
 
@@ -111,4 +126,37 @@ void Level_1::handleInput(GLFWwindow* window)
 	}
 
 	character->setDirection(charDir);
+	CheckWinLoseCases();
+}
+
+void Level_1::CheckWinLoseCases()
+{
+	if (tf.getTileType(charFieldPos.y * xDimField + charFieldPos.x) == "water")
+	{
+		reset();
+	}
+}
+
+void Level_1::reset()
+{
+	if (!resetting)
+	{
+		resetting = true;
+		time = 0.0f;
+	}
+	if (charDir != glm::vec2{ 0.0f, 0.0f } &&
+		glm::dot(tf.getTilePosition(charFieldPos.y * xDimField + charFieldPos.x) - character->getPosition(), charDir) < 0)
+	{
+		charDir = { 0.0f, 0.0f };
+		character->setDirection(charDir);
+	}
+	else if (time >= 2.0f)
+	{
+		resetting = false;
+		time = 0.0f;
+		charFieldPos = initialCharPos;
+		character->setPosition(tf.getTilePosition(charFieldPos.y * xDimField + charFieldPos.x));
+		character->setDirection({ 0.0f, 1.0f }); // Lazy way of setting character to look up
+		character->setDirection(charDir);
+	}
 }

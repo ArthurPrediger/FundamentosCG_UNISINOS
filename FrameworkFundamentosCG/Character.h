@@ -26,6 +26,10 @@ public:
 	{
 		return glm::vec2(gameObject.transform.translation);
 	}
+	void setPosition(const glm::vec2 pos)
+	{
+		gameObject.transform.translation = { pos, 1.0f };
+	}
 private:
 	Shader* shader;
 	std::string spritePath;
@@ -33,7 +37,7 @@ private:
 	int nFrames = 4;
 	int nAnimations = 4;
 	std::vector<Animation> animations;
-	Sequence iCurSequence = Sequence::StandingDown;
+	Sequence iCurSequence = Sequence::StandingUp;
 	float speed = 100.0f;
 	GameObject gameObject;
 	std::vector<Model::Vertex> vertices = {

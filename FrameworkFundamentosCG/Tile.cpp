@@ -1,15 +1,15 @@
 #include "Tile.h"
 #include <memory>
 
-Tile::Tile(const std::string& tileSetPath, Shader* shader, const glm::vec2& pos, const glm::vec2& scale,
-	float normalizedTileTextureWidth, float normalizedTileTextureHeight,
-	const glm::vec2& tileSetOffset)
+Tile::Tile(const std::string& tileSetPath, const std::string& type,
+	Shader* shader, const glm::vec2& pos, const glm::vec2& scale,
+	const glm::vec2& normalizedTileTexturePosition, const glm::vec2& tileSetOffset)
 	:
 	tileSetPath(tileSetPath),
+	type(type),
 	shader(shader),
 	gameObject(GameObject::createGameObject()),
-	normalizedTileTextureWidth(normalizedTileTextureWidth),
-	normalizedTileTextureHeight(normalizedTileTextureHeight),
+	normalizedTileTexturePosition(normalizedTileTexturePosition),
 	tileSetOffset(tileSetOffset)
 {
 	gameObject.transform.translation = { pos, 1.0f };

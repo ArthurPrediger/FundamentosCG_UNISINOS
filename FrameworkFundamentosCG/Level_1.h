@@ -13,13 +13,17 @@ public:
 	void draw() override;
 private:
 	void handleInput(GLFWwindow* window);
+	void CheckWinLoseCases();
+	void reset();
 private:
 	Shader* shader;
-	glm::ivec2 charFieldPos = { 0 , 0 };
+	glm::ivec2 initialCharPos = { 0 , 0 };
+	glm::ivec2 charFieldPos = initialCharPos;
 	glm::vec2 charDir = { 0.0f , 0.0f };
 	std::unique_ptr<Character> character;
 	int xDimField = 10;
 	int yDimField = 10;
 	TileField tf;
 	float time = 0.0f;
+	bool resetting = false;
 };
