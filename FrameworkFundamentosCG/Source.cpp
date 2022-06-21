@@ -9,7 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "stb_image.h"
 #include "FrameTimer.h"
-#include "Level_1.h"
+#include "Game.h"
 
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -67,7 +67,7 @@ int main()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	FrameTimer ft{};
-	Level_1 scene{"Level_1", &shader};
+	Game game{&shader};
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -87,8 +87,8 @@ int main()
 		glLineWidth(10);
 		glPointSize(20);
 
-		scene.update(window, ft.Mark());
-		scene.draw();
+		game.update(window, ft.Mark());
+		game.draw();
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);

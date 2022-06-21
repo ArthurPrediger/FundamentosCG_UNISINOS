@@ -170,6 +170,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="FrameTimer.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="IndexedTriangleList.h" />
     <ClInclude Include="Model.h" />
