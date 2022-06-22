@@ -160,11 +160,12 @@
     <ClCompile Include="FrameTimer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="Level_1.cpp" />
+    <ClCompile Include="Level.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileField.cpp" />
+    <ClCompile Include="TreasureSpawner.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -175,12 +176,13 @@
     <ClInclude Include="IndexedTriangleList.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Level_1.h" />
+    <ClInclude Include="Level.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileField.h" />
+    <ClInclude Include="TreasureSpawner.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

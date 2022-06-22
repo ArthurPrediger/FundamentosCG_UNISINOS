@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Level_1.h"
+#include "Level.h"
 
 class Game
 {
 public:
 	Game(Shader* shader)
 	{
-		scenes.push_back(std::make_unique<Level_1>("Level_1", shader));
+		scenes.push_back(std::make_unique<Level>("Level_1", shader, this));
 		curScene = scenes.begin();
 	}
 	void update(GLFWwindow* window, float dt)

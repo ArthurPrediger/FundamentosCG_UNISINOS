@@ -1,6 +1,6 @@
 #include "TileField.h"
 
-TileField::TileField(int xDimension, int yDimension, 
+TileField::TileField(const glm::ivec2& dimensions,
 	const std::vector<int>& tileMap, 
 	const std::vector<std::string>& tilesTypes,
 	const std::vector<std::string>& tileSetPaths, 
@@ -9,13 +9,14 @@ TileField::TileField(int xDimension, int yDimension,
 	const std::vector<glm::vec2>& tileSetOffsets, 
 	Shader* shader)
 	:
+	dimensions(dimensions),
 	shader(shader)
 {
-	for (int tileY = 0; tileY < yDimension; tileY++)
+	for (int tileY = 0; tileY < dimensions.y; tileY++)
 	{
-		for (int tileX = 0; tileX < xDimension; tileX++)
+		for (int tileX = 0; tileX < dimensions.x; tileX++)
 		{
-			size_t index = size_t(tileY) * xDimension + tileX;
+			size_t index = size_t(tileY) * dimensions.x + tileX;
 			tiles.emplace_back(Tile(
 				tileSetPaths[tileMap[index]],
 				tilesTypes[tileMap[index]],

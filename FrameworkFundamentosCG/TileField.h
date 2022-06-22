@@ -5,8 +5,7 @@
 class TileField
 {
 public:
-	TileField() = default;
-	TileField(int xDimension, int yDimension, 
+	TileField(const glm::ivec2& dimensions, 
 	    const std::vector<int>& tileMap, 
 	    const std::vector<std::string>& tilesTypes,
 	    const std::vector<std::string>& tileSetPaths, 
@@ -24,8 +23,13 @@ public:
 	{
 		return tiles[tyleIndex].getType();
 	}
+	const glm::ivec2& getDimensions() const
+	{
+		return dimensions;
+	}
 private:
 	Shader* shader = nullptr;
+	const glm::ivec2 dimensions;
 	std::vector<Tile> tiles;
 	float tileWidth = 96.0f;
 	float tileHeight = 48.0f;

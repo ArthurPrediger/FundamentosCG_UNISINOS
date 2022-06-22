@@ -1,29 +1,32 @@
 #pragma once
 
+#include "Scene.h"
 #include "IndexedTriangleList.h"
 #include "TileField.h"
 #include "Character.h"
-#include "Scene.h"
+#include "TreasureSpawner.h"
 
-class Level_1 : public Scene
+class Level : public Scene
 {
 public:
-	Level_1(const std::string name, Shader* shader);
+	Level(const std::string name, Shader* shader, class Game* game );
 	void update(GLFWwindow* window, float dt) override;
 	void draw() override;
 private:
 	void handleInput(GLFWwindow* window);
-	void CheckWinLoseCases();
+	void checkWinLoseCases();
 	void reset();
+	void endLevel();
 private:
 	Shader* shader;
-	glm::ivec2 initialCharPos = { 0 , 0 };
+	Game* game;
+	const glm::ivec2 initialCharPos = { 0 , 0 };
 	glm::ivec2 charFieldPos = initialCharPos;
 	glm::vec2 charDir = { 0.0f , 0.0f };
 	std::unique_ptr<Character> character;
-	int xDimField = 10;
-	int yDimField = 10;
-	TileField tf;
+	std::shared_ptr<TileField> tf;
+	std::unique_ptr<TreasureSpawner> ts;
+	int numTreasures;
 	float time = 0.0f;
-	bool resetting = false;
+	bool updateInput = true;
 };

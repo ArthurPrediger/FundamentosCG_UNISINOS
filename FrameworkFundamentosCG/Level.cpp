@@ -1,9 +1,12 @@
-#include "Level_1.h"
+#include "Level.h"
+#include "Game.h"
 
-Level_1::Level_1(const std::string name, Shader* shader)
+Level::Level(const std::string name, Shader* shader, Game* game)
 	:
 	Scene(name),
-	shader(shader)
+	shader(shader),
+	game(game),
+	numTreasures(1)
 {
 	std::vector<int> tileMap;
 
@@ -39,43 +42,54 @@ Level_1::Level_1(const std::string name, Shader* shader)
 		{ 2.0f / 3.0f, 3.0f / 5.0f }
 	};
 
-	tf = { xDimField, yDimField, 
-		   std::move(tileMap), 
+	tf = std::make_shared<TileField>(
+		   glm::ivec2{ 10, 10 },
+		   std::move(tileMap),
 		   std::move(tilesTypes),
-		   std::move(tileSetPaths), 
-		   std::move(normalizedTexturesDimensions), 
-		   { 480.0f, 180.0f },
-		   std::move(tileSetOffsets), 
-		   shader };
+		   std::move(tileSetPaths),
+		   std::move(normalizedTexturesDimensions),
+		   glm::vec2{ 480.0f, 180.0f },
+		   std::move(tileSetOffsets),
+		   shader );
 
-	auto pos = tf.getTilePosition(initialCharPos.y * xDimField + initialCharPos.x);
+	auto pos = tf->getTilePosition(initialCharPos.y * tf->getDimensions().x + initialCharPos.x);
 	character = std::make_unique<Character>(shader, pos, glm::vec2{60.0f, 75.0f});
+
+	ts = std::make_unique<TreasureSpawner>(shader, tf, charFieldPos, numTreasures);
 }
 
-void Level_1::update(GLFWwindow* window, float dt)
+void Level::update(GLFWwindow* window, float dt)
 {
 	time += dt;
-	if (!resetting)
+	if (updateInput)
 	{
 		handleInput(window);
+	}
+	else if (ts->getNumTreasures() <= 0)
+	{
+		endLevel();
 	}
 	else
 	{
 		reset();
 	}
+	ts->update(dt);
 	character->update(dt);
 }
 
-void Level_1::draw()
+void Level::draw()
 {
-	tf.draw();
+	tf->draw();
+	ts->draw();
 	character->draw();
 }
 
-void Level_1::handleInput(GLFWwindow* window)
+void Level::handleInput(GLFWwindow* window)
 {
 	const auto holdTime = 0.5f;
 	const auto prevPos = charFieldPos;
+	const auto xDimField = tf->getDimensions().x;
+	const auto yDimField = tf->getDimensions().y;
 
 	// east
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && 
@@ -117,46 +131,76 @@ void Level_1::handleInput(GLFWwindow* window)
 	auto index = charFieldPos.y * xDimField + charFieldPos.x;
 	if (charFieldPos != prevPos)
 	{
-		charDir = glm::normalize(tf.getTilePosition(index) - character->getPosition());
+		charDir = glm::normalize(tf->getTilePosition(index) - character->getPosition());
 		time = 0.0f;
 	}
-	if (glm::dot(tf.getTilePosition(index) - character->getPosition(), charDir) < 0)
+	if (glm::dot(tf->getTilePosition(index) - character->getPosition(), charDir) < 0)
 	{
 		charDir = { 0.0f, 0.0f };
 	}
 
 	character->setDirection(charDir);
-	CheckWinLoseCases();
+	checkWinLoseCases();
 }
 
-void Level_1::CheckWinLoseCases()
+void Level::checkWinLoseCases()
 {
-	if (tf.getTileType(charFieldPos.y * xDimField + charFieldPos.x) == "water")
+	if (tf->getTileType(charFieldPos.y * tf->getDimensions().x + charFieldPos.x) != "ground")
 	{
 		reset();
 	}
+	else if (ts->checkIfTreasureCaught(charFieldPos))
+	{
+		if (ts->getNumTreasures() <= 0)
+		{
+			endLevel();
+		}
+	}
 }
 
-void Level_1::reset()
+void Level::reset()
 {
-	if (!resetting)
+	if (updateInput)
 	{
-		resetting = true;
+		updateInput = false;
 		time = 0.0f;
 	}
 	if (charDir != glm::vec2{ 0.0f, 0.0f } &&
-		glm::dot(tf.getTilePosition(charFieldPos.y * xDimField + charFieldPos.x) - character->getPosition(), charDir) < 0)
+		glm::dot(tf->getTilePosition(charFieldPos.y * tf->getDimensions().x + charFieldPos.x) - character->getPosition(), charDir) < 0)
 	{
 		charDir = { 0.0f, 0.0f };
 		character->setDirection(charDir);
 	}
 	else if (time >= 2.0f)
 	{
-		resetting = false;
+		updateInput = true;
 		time = 0.0f;
 		charFieldPos = initialCharPos;
-		character->setPosition(tf.getTilePosition(charFieldPos.y * xDimField + charFieldPos.x));
+		character->setPosition(tf->getTilePosition(charFieldPos.y * tf->getDimensions().x + charFieldPos.x));
 		character->setDirection({ 0.0f, 1.0f }); // Lazy way of setting character to look up
 		character->setDirection(charDir);
+		ts = std::make_unique<TreasureSpawner>(shader, tf, charFieldPos, numTreasures);
 	}
 }
+
+void Level::endLevel()
+{
+	if (updateInput)
+	{
+		updateInput = false;
+		time = 0.0f;
+	}
+	if (charDir != glm::vec2{ 0.0f, 0.0f } &&
+		glm::dot(tf->getTilePosition(charFieldPos.y * tf->getDimensions().x + charFieldPos.x) - character->getPosition(), charDir) < 0)
+	{
+		charDir = { 0.0f, 0.0f };
+		character->setDirection(charDir);
+	}
+	else if (time >= 2.0f)
+	{
+		reset();
+		game->changeScene();
+	}
+}
+
+
