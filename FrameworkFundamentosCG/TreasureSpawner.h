@@ -18,6 +18,16 @@ public:
 	{
 		return int(treasures.size());
 	}
+	const std::vector<glm::ivec2>&& getTreasurePositions() const
+	{
+		std::vector< glm::ivec2> positions;
+		for (const auto& treasure : treasures)
+		{
+			positions.push_back(treasure.fieldPos);
+		}
+
+		return std::move(positions);
+	}
 private:
 	void changeTreasuresPos();
 private:

@@ -6,11 +6,11 @@ class TileField
 {
 public:
 	TileField(const glm::ivec2& dimensions, 
+		const glm::vec2& fieldOffsets,
 	    const std::vector<int>& tileMap, 
 	    const std::vector<std::string>& tilesTypes,
 	    const std::vector<std::string>& tilesetPaths, 
 	    const std::vector<glm::vec2>& normalizedTexturesPositions, 
-	    const glm::vec2& fieldCenterPos, 
 	    const std::vector<glm::vec2>& tilesetOffsets, 
 		Shader* shader);
 	void draw() const;

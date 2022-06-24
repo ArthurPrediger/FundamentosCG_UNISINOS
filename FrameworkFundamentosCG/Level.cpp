@@ -87,11 +87,11 @@ Level::Level(const std::string& name, const std::wstring& filePath, Shader* shad
 
 		tf = std::make_shared<TileField>(
 			std::move(tileFieldDimensions),
+			glm::vec2{ 480.0f, 180.0f },
 			std::move(tileMap),
 			std::move(tilesTypes),
 			std::move(tilesetPaths),
 			std::move(normalizedTexturesDimensions),
-			glm::vec2{ 480.0f, 180.0f },
 			std::move(tilesetOffsets),
 			shader);
 
@@ -145,11 +145,11 @@ Level::Level(const std::string& name, Shader* shader, Game* game)
 
 	tf = std::make_shared<TileField>(
 		   glm::ivec2{ 10, 10 },
+		   glm::vec2{ 480.0f, 180.0f },
 		   std::move(tileMap),
 		   std::move(tilesTypes),
 		   std::move(tilesetPaths),
 		   std::move(normalizedTexturesDimensions),
-		   glm::vec2{ 480.0f, 180.0f },
 		   std::move(tilesetOffsets),
 		   shader );
 
