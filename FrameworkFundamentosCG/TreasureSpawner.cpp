@@ -45,6 +45,7 @@ void TreasureSpawner::update(float dt)
 
 	if (time >= changePosRate)
 	{
+		applyCursedTreasureMark();
 		changeTreasuresPos();
 		time = 0.0f;
 	}
@@ -67,6 +68,17 @@ bool TreasureSpawner::checkIfTreasureCaught(const glm::ivec2& pos)
 		});
 
 	return nTreasuresCaught > 0;
+}
+
+void TreasureSpawner::applyCursedTreasureMark()
+{
+	std::vector< glm::ivec2> positions;
+	for (const auto& treasure : treasures)
+	{
+		positions.push_back(treasure.fieldPos);
+	}
+
+	tf->changeTileTypes(positions);
 }
 
 void TreasureSpawner::changeTreasuresPos()
