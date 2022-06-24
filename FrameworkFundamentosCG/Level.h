@@ -9,7 +9,8 @@
 class Level : public Scene
 {
 public:
-	Level(const std::string name, Shader* shader, class Game* game );
+	Level(const std::string& name, const std::wstring& filePath, Shader* shader, class Game* game);
+	Level(const std::string& name, Shader* shader, Game* game );
 	void update(GLFWwindow* window, float dt) override;
 	void draw() override;
 private:
@@ -26,7 +27,7 @@ private:
 	std::unique_ptr<Character> character;
 	std::shared_ptr<TileField> tf;
 	std::unique_ptr<TreasureSpawner> ts;
-	int numTreasures;
+	int numTreasures = 0;
 	float time = 0.0f;
 	bool updateInput = true;
 };

@@ -8,10 +8,10 @@ public:
 	TileField(const glm::ivec2& dimensions, 
 	    const std::vector<int>& tileMap, 
 	    const std::vector<std::string>& tilesTypes,
-	    const std::vector<std::string>& tileSetPaths, 
+	    const std::vector<std::string>& tilesetPaths, 
 	    const std::vector<glm::vec2>& normalizedTexturesPositions, 
 	    const glm::vec2& fieldCenterPos, 
-	    const std::vector<glm::vec2>& tileSetOffsets, 
+	    const std::vector<glm::vec2>& tilesetOffsets, 
 		Shader* shader);
 	void draw() const;
 	glm::vec2 getTilePosition(int tileIndex) const

@@ -1,7 +1,108 @@
 #include "Level.h"
 #include "Game.h"
+#include <iostream>
+#include <fstream>
 
-Level::Level(const std::string name, Shader* shader, Game* game)
+Level::Level(const std::string& name, const std::wstring& filePath, Shader* shader, Game* game)
+	:
+	Scene(name),
+	shader(shader),
+	game(game)
+{
+	std::ifstream file(filePath);
+	if (file.is_open())
+	{
+		auto ignoreLines = [](size_t numLines, std::ifstream& file)
+		{
+			std::string garbage;
+			for (size_t i = 0; i < numLines; i++)
+			{
+				std::getline(file, garbage);
+			}
+		};
+
+		ignoreLines(1, file);
+		std::string line;
+		std::getline(file, line);
+		int numDiffTiles = std::stoi(line);
+		
+		ignoreLines(2, file);
+		std::vector<std::string> tilesTypes;
+		for (int i = 0; i < numDiffTiles; i++)
+		{
+			std::getline(file, line);
+			tilesTypes.push_back(line);
+		}
+
+		ignoreLines(2, file);
+		std::vector<std::string> tilesetPaths;
+		for (int i = 0; i < numDiffTiles; i++)
+		{
+			std::getline(file, line);
+			tilesetPaths.push_back(line);
+		}
+
+		ignoreLines(2, file);
+		std::vector<glm::vec2> normalizedTexturesDimensions;
+		for (int i = 0; i < numDiffTiles; i++)
+		{
+			std::getline(file, line);
+			normalizedTexturesDimensions.push_back(
+				{ std::stof(line.substr(0, line.find_first_of(","))),
+				      std::stof(line.substr(line.find_first_of(" "), line.find_first_of("\n"))) });
+		}
+
+		ignoreLines(2, file);
+		std::vector<glm::vec2> tilesetOffsets;
+		for (int i = 0; i < numDiffTiles; i++)
+		{
+			std::getline(file, line);
+			tilesetOffsets.push_back(
+				{ std::stof(line.substr(0, line.find_first_of(","))),
+					  std::stof(line.substr(line.find_first_of(" "), line.find_first_of("\n"))) });
+		}
+
+		ignoreLines(2, file);
+		glm::ivec2 tileFieldDimensions{};
+		std::getline(file, line);
+		tileFieldDimensions.x = std::stoi(line.substr(0, line.find_first_of(",")));
+		tileFieldDimensions.y = std::stoi(line.substr(line.find_first_of(" "), line.find_first_of("\n")));
+
+		ignoreLines(2, file);
+		std::vector<int> tileMap;
+		for (int y = 0; y < tileFieldDimensions.y; y++)
+		{
+			for (int x = 0; x < tileFieldDimensions.x; x++)
+			{
+				tileMap.push_back(file.get() - '0');
+				file.get();
+			}
+		}
+
+		ignoreLines(2, file);
+		std::getline(file, line);
+		numTreasures = std::stoi(line);
+
+		file.close();
+
+		tf = std::make_shared<TileField>(
+			std::move(tileFieldDimensions),
+			std::move(tileMap),
+			std::move(tilesTypes),
+			std::move(tilesetPaths),
+			std::move(normalizedTexturesDimensions),
+			glm::vec2{ 480.0f, 180.0f },
+			std::move(tilesetOffsets),
+			shader);
+
+		auto pos = tf->getTilePosition(initialCharPos.y * tf->getDimensions().x + initialCharPos.x);
+		character = std::make_unique<Character>(shader, pos, glm::vec2{ 60.0f, 75.0f });
+
+		ts = std::make_unique<TreasureSpawner>(shader, tf, charFieldPos, numTreasures);
+	}
+}
+
+Level::Level(const std::string& name, Shader* shader, Game* game)
 	:
 	Scene(name),
 	shader(shader),
@@ -27,7 +128,7 @@ Level::Level(const std::string name, Shader* shader, Game* game)
 		"ground"
 	};
 
-	std::vector<std::string> tileSetPaths = {
+	std::vector<std::string> tilesetPaths = {
 		"../TileSets/Solid_Tiles_Flat_128x88.png", 
 		"../TileSets/Ground_Rocky1_256x128.png"
 	};
@@ -37,7 +138,7 @@ Level::Level(const std::string name, Shader* shader, Game* game)
 		{ 1.0f / 3.0f, 1.0f / 5.0f }
 	};
 
-	std::vector<glm::vec2> tileSetOffsets = { 
+	std::vector<glm::vec2> tilesetOffsets = { 
 		{ 5.0f / 6.0f, 0.0f },
 		{ 2.0f / 3.0f, 3.0f / 5.0f }
 	};
@@ -46,10 +147,10 @@ Level::Level(const std::string name, Shader* shader, Game* game)
 		   glm::ivec2{ 10, 10 },
 		   std::move(tileMap),
 		   std::move(tilesTypes),
-		   std::move(tileSetPaths),
+		   std::move(tilesetPaths),
 		   std::move(normalizedTexturesDimensions),
 		   glm::vec2{ 480.0f, 180.0f },
-		   std::move(tileSetOffsets),
+		   std::move(tilesetOffsets),
 		   shader );
 
 	auto pos = tf->getTilePosition(initialCharPos.y * tf->getDimensions().x + initialCharPos.x);

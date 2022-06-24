@@ -5,9 +5,9 @@
 class Tile
 {
 public:
-	Tile(const std::string& tileSetPath, const std::string& type,
+	Tile(const std::string& tilesetPath, const std::string& type,
 		Shader* shader, const glm::vec2& pos, const glm::vec2& scale,
-		const glm::vec2& normalizedTileTexturePosition, const glm::vec2& tileSetOffset);
+		const glm::vec2& normalizedTileTexturePosition, const glm::vec2& tilesetOffset);
 	void draw() const;
 	glm::vec2 getPosition() const
 	{
@@ -18,12 +18,12 @@ public:
 		return type;
 	}
 private:
-	std::string tileSetPath;
+	std::string tilesetPath;
 	std::string type;
 	Shader* shader;
 	GameObject gameObject;
 	glm::vec2 normalizedTileTexturePosition;
-	glm::vec2 tileSetOffset;
+	glm::vec2 tilesetOffset;
 	std::vector<Model::Vertex> vertices = {
 		// posicoes            // cores              // coordenadas de textura
 	   { { 0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { normalizedTileTexturePosition.x, 0.0f }}, // superior direito

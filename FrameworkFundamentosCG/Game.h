@@ -7,7 +7,7 @@ class Game
 public:
 	Game(Shader* shader)
 	{
-		scenes.push_back(std::make_unique<Level>("Level_1", shader, this));
+		scenes.push_back(std::make_unique<Level>("Level_1", L"Levels/Level1.txt", shader, this));
 		curScene = scenes.begin();
 	}
 	void update(GLFWwindow* window, float dt)
