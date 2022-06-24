@@ -67,7 +67,7 @@ int main()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	FrameTimer ft{};
-	Game game{&shader};
+	Game game{window, &shader};
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))

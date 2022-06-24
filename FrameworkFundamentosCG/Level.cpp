@@ -129,8 +129,8 @@ Level::Level(const std::string& name, Shader* shader, Game* game)
 	};
 
 	std::vector<std::string> tilesetPaths = {
-		"../TileSets/Solid_Tiles_Flat_128x88.png", 
-		"../TileSets/Ground_Rocky1_256x128.png"
+		"../Tilesets/Solid_Tiles_Flat_128x88.png", 
+		"../Tilesets/Ground_Rocky1_256x128.png"
 	};
 
 	std::vector<glm::vec2> normalizedTexturesDimensions = { 
