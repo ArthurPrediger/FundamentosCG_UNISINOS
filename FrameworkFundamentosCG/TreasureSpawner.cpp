@@ -24,17 +24,7 @@ TreasureSpawner::TreasureSpawner(
 
 	spawnPosDist = std::uniform_int_distribution<int>(0, int(indexSpawnableTiles.size()) - 1);
 
-	for (int i = 0; i < numTreasures; i++)
-	{
-		treasures.emplace_back(Treasure(GameObject::createGameObject(), {0, 0}));
-		treasures[i].gameObject.transform.translation = { 0.0f, 0.0f , 1.0f };
-		treasures[i].gameObject.transform.scale = { 30.0f, 30.0f, 1.0f };
-		treasures[i].gameObject.model = std::make_shared<Model>(
-			shader,
-			triangles,
-			treasureSpritePath,
-			treasures[i].gameObject.transform.mat4());
-	}
+	setNumTreasures(numTreasures);
 
 	changeTreasuresPos();
 }
@@ -72,13 +62,27 @@ bool TreasureSpawner::checkIfTreasureCaught(const glm::ivec2& pos)
 
 void TreasureSpawner::applyCursedTreasureMark()
 {
+	//Removes the cursed mark from the previous apply call
+	tf->changeTileTypes(changedPositions, changedTiles);
+
+	// Does the new apply
 	std::vector< glm::ivec2> positions;
+	changedTiles.clear();
 	for (const auto& treasure : treasures)
 	{
 		positions.push_back(treasure.fieldPos);
+		changedTiles.push_back(Tile(
+			cursedTile.getTexPath(),
+			cursedTile.getType(),
+			shader,
+			{ 0.0f, 0.0f },
+			{ 0, 0 },
+			cursedTile.getNorTexDim(),
+			cursedTile.getTilesetOff()));
 	}
 
-	tf->changeTileTypes(positions);
+	changedTiles = tf->changeTileTypes(positions, changedTiles);
+	changedPositions = positions;
 }
 
 void TreasureSpawner::changeTreasuresPos()
@@ -110,5 +114,20 @@ void TreasureSpawner::changeTreasuresPos()
 			triangles,
 			treasureSpritePath,
 			treasure.gameObject.transform.mat4());
+	}
+}
+
+void TreasureSpawner::setNumTreasures(int numTreasures)
+{
+	for (int i = treasures.size(); i < numTreasures; i++)
+	{
+		treasures.emplace_back(Treasure(GameObject::createGameObject(), { 0, 0 }));
+		treasures[i].gameObject.transform.translation = { 0.0f, 0.0f , 1.0f };
+		treasures[i].gameObject.transform.scale = { 30.0f, 30.0f, 1.0f };
+		treasures[i].gameObject.model = std::make_shared<Model>(
+			shader,
+			triangles,
+			treasureSpritePath,
+			treasures[i].gameObject.transform.mat4());
 	}
 }

@@ -29,39 +29,26 @@ TileField::TileField(const glm::ivec2& dimensions,
 	}
 }
 
-void TileField::changeTileTypes(const std::vector<glm::ivec2>& tilesAtPos)
+std::vector<Tile> TileField::changeTileTypes(const std::vector<glm::ivec2>& tilesAtPos, const std::vector<Tile>& substitutes)
 {
-	for (size_t i = 0; i < changedPositions.size(); i++)
-	{
-		auto index = changedPositions[i].y * dimensions.x + changedPositions[i].x;
-		tiles[index] = Tile(
-			changedTiles[i].getTexPath(),
-			changedTiles[i].getType(),
-			shader,
-			changedTiles[i].getPosition(),
-			{ tileWidth, tileHeight },
-			changedTiles[i].getNorTexDim(),
-			changedTiles[i].getTilesetOff()
-		);
-	}
-
-	changedTiles.clear();
-	changedPositions = tilesAtPos;
+	std::vector<Tile> changedTiles{};
 
 	for (size_t i = 0; i < tilesAtPos.size(); i++)
 	{
 		auto index = tilesAtPos[i].y * dimensions.x + tilesAtPos[i].x;
 		changedTiles.push_back(std::move(tiles[index]));
 		tiles[index] = Tile(
-			"../Tilesets/Ground_Rocky1_256x128.png",
-			"cursed",
+			substitutes[i].getTexPath(),
+			substitutes[i].getType(),
 			shader,
 			changedTiles[i].getPosition(),
 			{ tileWidth, tileHeight },
-			{ 0.33333333333f, 0.2f },
-			{ 0.0f, 0.2f }
+			substitutes[i].getNorTexDim(),
+			substitutes[i].getTilesetOff()
 		);
 	}
+
+	return changedTiles;
 }
 
 void TileField::draw() const

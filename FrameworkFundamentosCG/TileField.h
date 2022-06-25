@@ -13,7 +13,7 @@ public:
 	    const std::vector<glm::vec2>& normalizedTexturesPositions, 
 	    const std::vector<glm::vec2>& tilesetOffsets, 
 		Shader* shader);
-	void changeTileTypes(const std::vector<glm::ivec2>& tilesAtPos);
+	std::vector<Tile> changeTileTypes(const std::vector<glm::ivec2>& tilesAtPos, const std::vector<Tile>& substitutes);
 	void draw() const;
 	glm::vec2 getTilePosition(int tileIndex) const
 	{
@@ -34,7 +34,4 @@ private:
 	std::vector<Tile> tiles;
 	float tileWidth = 96.0f;
 	float tileHeight = 48.0f;
-
-	std::vector<Tile> changedTiles{};
-	std::vector<glm::ivec2> changedPositions{};
 };

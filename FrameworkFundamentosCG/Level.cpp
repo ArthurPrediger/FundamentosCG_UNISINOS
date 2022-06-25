@@ -280,7 +280,8 @@ void Level::reset()
 		character->setPosition(tf->getTilePosition(charFieldPos.y * tf->getDimensions().x + charFieldPos.x));
 		character->setDirection({ 0.0f, 1.0f }); // Lazy way of setting character to look up
 		character->setDirection(charDir);
-		ts = std::make_unique<TreasureSpawner>(shader, tf, charFieldPos, numTreasures);
+		ts->setNumTreasures(numTreasures);
+		ts->changeTreasuresPos();
 	}
 }
 

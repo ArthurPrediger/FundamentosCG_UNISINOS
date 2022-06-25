@@ -19,8 +19,10 @@ public:
 		return int(treasures.size());
 	}
 private:
+	friend class Level;
 	void applyCursedTreasureMark();
 	void changeTreasuresPos();
+	void setNumTreasures(int numTreasures);
 private:
 	struct Treasure
 	{
@@ -30,14 +32,18 @@ private:
 private:
 	std::mt19937 rng;
 	std::uniform_int_distribution<int> spawnPosDist;
+
 	Shader* shader;
 	std::shared_ptr<TileField> tf;
-	std::string treasureSpritePath;
 	const glm::ivec2& playerFieldPos;
+
+	float time = 0.0f;
+	const float changePosRate = 6.0f;
+
 	std::vector<unsigned int> indexSpawnableTiles;
 	const float minSqrSpawnDist = 9.0f;
-	float time = 0.0f;
-	const float changePosRate = 8.0f;
+
+	std::string treasureSpritePath;
 	std::vector<Treasure> treasures;
 	std::vector<Model::Vertex> vertices = {
 		// posicoes            // cores              // coordenadas de textura
@@ -51,4 +57,15 @@ private:
 	1, 2, 3  // segundo triangulo
 	};
 	IndexedTriangleList<Model::Vertex> triangles{ vertices, indices };
+
+	Tile cursedTile = {
+		"../Tilesets/Ground_Rocky1_256x128.png",
+		"cursed",
+		shader,
+		{ 0.0f, 0.0f },
+		{ 0, 0 },
+		{ 0.33333333333f, 0.2f },
+		{ 0.0f, 0.2f } };
+	std::vector<Tile> changedTiles{};
+	std::vector<glm::ivec2> changedPositions{};
 };
